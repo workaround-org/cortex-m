@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 @Singleton
@@ -26,20 +27,29 @@ public class CortexMToolProviderSupplier implements Supplier<ToolProvider>
 	@Inject
 	McpHttpConfigRepository mcpConfigRepository;
 
-	private McpToolProvider mcpToolProvider;
+	@Inject
+	CortexMToolProvider cortexMToolProvider;
 
 	private static McpClient buildHttpClient(McpHttpConfig config)
 	{
-		McpTransport streamableHttpMcpTransport = StreamableHttpMcpTransport.builder()
-			.url(config.getUrl())
-			.build();
-		McpClient client = DefaultMcpClient.builder()
-			.transport(streamableHttpMcpTransport)
-			.key(config.getName())
-			.clientName(config.getName())
-			.build();
-		log.info("Found {} tools for client {}", client.listTools().size(), config.getName());
-		return client;
+		try
+		{
+			McpTransport streamableHttpMcpTransport = StreamableHttpMcpTransport.builder()
+				.url(config.getUrl())
+				.build();
+			McpClient client = DefaultMcpClient.builder()
+				.transport(streamableHttpMcpTransport)
+				.key(config.getName())
+				.clientName(config.getName())
+				.build();
+			log.info("Found {} tools for client {}", client.listTools().size(), config.getName());
+			return client;
+		}
+		catch (Exception e)
+		{
+			log.error("Error creating MCP client for config {}: {}", config.getName(), e.getMessage());
+			return null;
+		}
 	}
 
 	/**
@@ -50,9 +60,10 @@ public class CortexMToolProviderSupplier implements Supplier<ToolProvider>
 	{
 		List<McpClient> mcpClients = loadClientsFromDB();
 		// Challenge: How to add static tools? extend McpToolProvider / use a router?
-		mcpToolProvider = McpToolProvider.builder()
+		McpToolProvider mcpToolProvider = McpToolProvider.builder()
 			.mcpClients(mcpClients)
 			.build();
+		cortexMToolProvider.setMcpToolProvider(mcpToolProvider);
 	}
 
 	@ActivateRequestContext
@@ -60,12 +71,13 @@ public class CortexMToolProviderSupplier implements Supplier<ToolProvider>
 	{
 		return mcpConfigRepository.listAll().stream()
 			.map(CortexMToolProviderSupplier::buildHttpClient)
+			.filter(Objects::nonNull)
 			.toList();
 	}
 
 	@Override
 	public ToolProvider get()
 	{
-		return mcpToolProvider;
+		return cortexMToolProvider;
 	}
 }
