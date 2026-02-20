@@ -1,39 +1,79 @@
 package de.u_project.cortex_m.tools;
 
+import de.u_project.cortex_m.data.McpHttpConfig;
+import de.u_project.cortex_m.data.McpHttpConfigRepository;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.mcp.McpToolProvider;
+import dev.langchain4j.mcp.client.DefaultMcpClient;
+import dev.langchain4j.mcp.client.McpClient;
+import dev.langchain4j.mcp.client.transport.McpTransport;
+import dev.langchain4j.mcp.client.transport.http.StreamableHttpMcpTransport;
 import dev.langchain4j.service.tool.ToolExecutor;
 import dev.langchain4j.service.tool.ToolProvider;
 import dev.langchain4j.service.tool.ToolProviderRequest;
 import dev.langchain4j.service.tool.ToolProviderResult;
 import io.quarkiverse.langchain4j.runtime.ToolsRecorder;
 import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-@ApplicationScoped
+@Singleton
 public class CortexMToolProvider implements ToolProvider
 {
+	private static final Logger log = LoggerFactory.getLogger(CortexMToolProvider.class);
+
 	@Inject
 	MemoryTool memoryTool;
+	@Inject
+	// Use Interface to inject
+	McpConnectionTool mcpConnectionTool;
+
+	@Inject
+	McpHttpConfigRepository mcpConfigRepository;
 
 	private Map<ToolSpecification, ToolExecutor> staticTools = new HashMap<>();
 	private McpToolProvider mcpToolProvider;
 
-	@PostConstruct
-	void init()
+	private static McpClient buildHttpClient(McpHttpConfig config)
 	{
-		staticTools = getToolConfig(List.of(memoryTool));
+		try
+		{
+			McpTransport streamableHttpMcpTransport = StreamableHttpMcpTransport.builder()
+				.url(config.getUrl())
+				.build();
+			McpClient client = DefaultMcpClient.builder()
+				.transport(streamableHttpMcpTransport)
+				.key(config.getName())
+				.clientName(config.getName())
+				.build();
+			log.info("Found {} tools for client {}", client.listTools().size(), config.getName());
+			return client;
+		}
+		catch (Exception e)
+		{
+			log.error("Error creating MCP client for config {}: {}", config.getName(), e.getMessage());
+			return null;
+		}
 	}
 
-	public void setMcpToolProvider(McpToolProvider mcpToolProvider)
+	@PostConstruct
+	public void init()
 	{
-		this.mcpToolProvider = mcpToolProvider;
+		staticTools = getToolConfig(List.of(memoryTool, mcpConnectionTool));
+		List<McpClient> mcpClients = loadClientsFromDB();
+		this.mcpToolProvider = McpToolProvider.builder()
+			.mcpClients(mcpClients)
+			.build();
+
 	}
 
 	@Override
@@ -44,6 +84,15 @@ public class CortexMToolProvider implements ToolProvider
 		return ToolProviderResult.builder()
 			.addAll(mcpTools)
 			.build();
+	}
+
+	@ActivateRequestContext
+	protected List<McpClient> loadClientsFromDB()
+	{
+		return mcpConfigRepository.listAll().stream()
+			.map(CortexMToolProvider::buildHttpClient)
+			.filter(Objects::nonNull)
+			.toList();
 	}
 
 	private Map<ToolSpecification, ToolExecutor> getToolConfig(List<Object> tools)

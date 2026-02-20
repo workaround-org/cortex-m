@@ -1,7 +1,7 @@
 package de.u_project.cortex_m;
 
 import de.u_project.cortex_m.bot.CortexMBot;
-import de.u_project.cortex_m.tools.CortexMToolProviderSupplier;
+import de.u_project.cortex_m.tools.CortexMToolProvider;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -17,7 +17,7 @@ public class ChatResource
 	CortexMBot cortexMBot;
 
 	@Inject
-	CortexMToolProviderSupplier cortexMToolProviderSupplier;
+	CortexMToolProvider mToolProvider;
 
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
@@ -30,7 +30,7 @@ public class ChatResource
 	@Produces(MediaType.TEXT_PLAIN)
 	public String updateMCP()
 	{
-		cortexMToolProviderSupplier.init();
+		mToolProvider.init();
 		return "Hello from Quarkus REST";
 	}
 
