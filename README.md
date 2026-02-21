@@ -1,88 +1,156 @@
-# code-with-quarkus
+# Cortex-M
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Java](https://img.shields.io/badge/Java-25-orange?logo=openjdk)](https://openjdk.org/)
+[![Quarkus](https://img.shields.io/badge/Quarkus-3.31.4-4695EB?logo=quarkus)](https://quarkus.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-PG--Vector-336791?logo=postgresql)](https://www.postgresql.org/)
+[![MCP](https://img.shields.io/badge/Protocol-MCP-blueviolet)](https://modelcontextprotocol.io/)
+[![CloudEvents](https://img.shields.io/badge/CloudEvents-1.0-lightgrey?logo=cloudevents)](https://cloudevents.io/)
+[![Build](https://img.shields.io/badge/build-Maven-C71A36?logo=apachemaven)](https://maven.apache.org/)
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+A cloud-native, modular, and token-efficient personal assistant framework built on open standards.
 
-## Running the application in dev mode
+***
 
-You can run your application in dev mode that enables live coding using:
+## What is Cortex-M?
 
-```shell script
+Cortex-M is a personal assistant microservice designed to be **affordable**, **stable**, and **highly extensible**.
+Instead of relying on fragile instruction files and granting the agent broad system access, Cortex-M is built around
+open standards — using the **Model Context Protocol (MCP)** for tools and a **vector database** for memory — keeping
+token usage lean and behavior predictable.
+
+The name reflects both its role as the central "brain" of your assistant infrastructure and its foundation on Quarkus —
+the *Supersonic Subatomic Java* framework.
+
+***
+
+## ✨ Features
+
+- **MCP-first tooling** — All agent capabilities are defined as structured MCP servers, registered in a database and
+  dynamically loaded at startup or runtime.
+- **Dynamic tool management** — Add or update MCP servers without redeploying the core service.
+- **Connector architecture** — Interact with Cortex-M via any number of lightweight connector services (e.g., Matrix,
+  Discord, Slack), written in any language.
+- **Multi-connector support** — The agent handles multiple simultaneous connectors in parallel, making it ideal for
+  cloud deployments.
+- **Sandboxed execution** — The agent has no access to the local shell or file system; all capabilities are strictly
+  scoped to registered MCP tools.
+- **Vector memory** *(coming soon)* — A PG-Vector-backed memory store allows the agent to ingest and retrieve
+  experiences as embeddings, replacing token-heavy history files with efficient semantic search.
+
+***
+
+## 🏗️ Architecture
+
+```
+┌───────────────────────────────────────────────┐
+│              Cortex-M Main Service             │
+│                  (Java / Quarkus)              │
+│                                                │
+│  ┌─────────────┐     ┌──────────────────────┐ │
+│  │ MCP Registry│     │  Agent / LLM Core    │ │
+│  │ (Postgres)  │────▶│                      │ │
+│  └─────────────┘     │  ┌────────────────┐  │ │
+│                      │  │ Vector Memory  │  │ │
+│                      │  │  (PG-Vector)   │  │ │
+│                      │  │  coming soon   │  │ │
+│                      │  └────────────────┘  │ │
+│                      └──────────────────────┘ │
+│                              │ WebSocket       │
+│                    ┌─────────┴──────────┐      │
+│                    ▼                    ▼      │
+│           Connector A           Connector B   │
+│         (Matrix / Go)         (Discord / Py)  │
+└───────────────────────────────────────────────┘
+```
+
+### Components
+
+| Component    | Technology     | Notes                                           |
+|--------------|----------------|-------------------------------------------------|
+| Main Service | Java + Quarkus | Core agent logic, MCP orchestration             |
+| Database     | PostgreSQL     | MCP server registry, config, state              |
+| Vector Store | PG-Vector      | Semantic memory *(coming soon)*                 |
+| Connectors   | Go / Python    | Platform bridges (Matrix, etc.) *(coming soon)* |
+
+***
+
+## 🔌 Connector Interface
+
+Connectors communicate with the main service via **WebSocket**, using **CloudEvents JSON** as the message envelope. This
+means connectors never need to be publicly exposed — they simply open a persistent connection to the main service.
+
+```json
+{
+  "specversion": "1.0",
+  "type": "assistant.message.inbound",
+  "source": "urn:connector:matrix-1",
+  "id": "b3c0c2f0-1234-...",
+  "time": "2026-02-21T07:54:00Z",
+  "datacontenttype": "application/json",
+  "data": {
+    "connectorId": "matrix-1",
+    "conversationId": "conv-abc",
+    "roomId": "!abc:example.org",
+    "text": "Hey Cortex, what's on my schedule?"
+  }
+}
+```
+
+> ⚠️ The connector protocol is a **work in progress**. The specification will be finalized and documented separately.
+
+***
+
+## 🚀 Getting Started
+
+> Full setup instructions coming soon.
+
+**Prerequisites:**
+
+- Docker / Podman
+- Java 25+
+
+**Quick start:**
+
+```bash
 ./mvnw quarkus:dev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+**Quick start (Docker Compose):**
 
-## Packaging and running the application
+Coming soon!
 
-The application can be packaged using:
-
-```shell script
-./mvnw package
+```bash
+docker compose up
 ```
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+***
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+## 🗺️ Roadmap
 
-If you want to build an _über-jar_, execute the following command:
+- [x] Dynamic MCP server registry (Postgres-backed)
+- [ ] Multi-connector support via WebSocket + CloudEvents JSON
+- [ ] Vector memory store (PG-Vector embeddings)
+- [ ] Direct runtime vector store access by the agent
+- [ ] Matrix connector (reference implementation)
+- [ ] Docker Compose reference setup
+- [ ] OpenAPI / AsyncAPI documentation
 
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
+***
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+## 🧠 Design Principles
 
-## Creating a native executable
+1. **Token efficiency over convenience** — Context is injected only when needed, not dumped wholesale.
+2. **Open standards** — MCP, CloudEvents, WebSocket; no proprietary lock-in.
+3. **Cloud-native** — Every component runs in a container; state lives in the database.
+4. **Strict sandboxing** — The agent does only what its registered tools allow. Nothing more.
 
-You can create a native executable using:
+***
 
-```shell script
-./mvnw package -Dnative
-```
+## 📄 License
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
+GPL3
 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
+***
 
-You can then execute your native executable with: `./target/code-with-quarkus-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
-
-## Related Guides
-
-- REST ([guide](https://quarkus.io/guides/rest)): A Jakarta REST implementation utilizing build time processing and Vert.x. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it.
-- SmallRye OpenAPI ([guide](https://quarkus.io/guides/openapi-swaggerui)): Document your REST APIs with OpenAPI - comes with Swagger UI
-- REST Jackson ([guide](https://quarkus.io/guides/rest#json-serialisation)): Jackson serialization support for Quarkus REST. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it
-- Hibernate ORM with Panache ([guide](https://quarkus.io/guides/hibernate-orm-panache)): Simplify your persistence code for Hibernate ORM via the active record or the repository pattern
-- SmallRye Health ([guide](https://quarkus.io/guides/smallrye-health)): Monitor service health
-- JDBC Driver - PostgreSQL ([guide](https://quarkus.io/guides/datasource)): Connect to the PostgreSQL database via JDBC
-- LangChain4j Ollama ([guide](https://docs.quarkiverse.io/quarkus-langchain4j/dev/guide-ollama.html)): Provides the basic integration of Ollama with LangChain4j
-- LangChain4j pgvector embedding store ([guide](https://docs.quarkiverse.io/quarkus-langchain4j/dev/index.html)): Provides the pgvector Embedding store for Quarkus LangChain4j
-
-## Provided Code
-
-### Hibernate ORM
-
-Create your first JPA entity
-
-[Related guide section...](https://quarkus.io/guides/hibernate-orm)
-
-[Related Hibernate with Panache section...](https://quarkus.io/guides/hibernate-orm-panache)
-
-
-### REST
-
-Easily start your REST Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
-
-### SmallRye Health
-
-Monitor your application's health using SmallRye Health
-
-[Related guide section...](https://quarkus.io/guides/smallrye-health)
+*Cortex-M — The central intelligence for your microservice assistant.*
