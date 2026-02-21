@@ -1,12 +1,15 @@
 package de.u_project.cortex_m.data;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 
 @Entity
+// extend something from Panache of IDs
 public class McpHttpConfig
 {
 	@Id
+	@GeneratedValue
 	private Long id;
 	private String name;
 	private String url;

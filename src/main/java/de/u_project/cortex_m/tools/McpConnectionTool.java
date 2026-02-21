@@ -22,8 +22,6 @@ public class McpConnectionTool
 	{
 		McpHttpConfig config = new McpHttpConfig();
 		config.setName(name);
-		// Fix IDs for McpHttpConfig
-		config.setId(2L);
 		config.setUrl(url);
 		mcpHttpConfigRepository.persist(config);
 		cortexMToolProvider.init();
