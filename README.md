@@ -135,6 +135,8 @@ docker compose up
 - [ ] Matrix connector (reference implementation)
 - [ ] Docker Compose reference setup
 - [ ] OpenAPI / AsyncAPI documentation
+- [ ] Proactive task execution & scheduling (cron-based self-waking)
+- [ ] Soul / Personality initialization (interactive first-run setup & memory storage)
 
 ***
 
