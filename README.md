@@ -130,11 +130,9 @@ docker compose up
 
 - [x] Dynamic MCP server registry (Postgres-backed)
 - [ ] Multi-connector support via WebSocket + CloudEvents JSON
-- [ ] Vector memory store (PG-Vector embeddings)
-- [ ] Direct runtime vector store access by the agent
+- [x] Vector memory store (PG-Vector embeddings)
+- [x] Direct runtime vector store access by the agent
 - [ ] Matrix connector (reference implementation)
-- [ ] Docker Compose reference setup
-- [ ] OpenAPI / AsyncAPI documentation
 - [ ] Proactive task execution & scheduling (cron-based self-waking)
 - [ ] Soul / Personality initialization (interactive first-run setup & memory storage)
 
