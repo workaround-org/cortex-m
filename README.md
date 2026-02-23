@@ -40,62 +40,9 @@ the *Supersonic Subatomic Java* framework.
 
 ***
 
-## 🏗️ Architecture
+## 📚 Documentation
 
-```mermaid
-graph TB
-    subgraph cortex["Cortex-M · Java / Quarkus"]
-        db[(MCP Registry\nPostgres)]
-        agent[Agent / LLM Core]
-        mem[(Vector Memory\nPG-Vector)]
-
-        db --> agent
-        agent -. coming soon .-> mem
-    end
-
-    ca[Connector A\nMatrix / Go]
-    cb[Connector B\nDiscord / Py]
-
-    agent -- WebSocket --> ca
-    agent -- WebSocket --> cb
-
-    style cortex fill:#4695EB22,stroke:#4695EB,color:#1a3a5c
-```
-
-### Components
-
-| Component    | Technology     | Notes                                           |
-|--------------|----------------|-------------------------------------------------|
-| Main Service | Java + Quarkus | Core agent logic, MCP orchestration             |
-| Database     | PostgreSQL     | MCP server registry, config, state              |
-| Vector Store | PG-Vector      | Semantic memory *(coming soon)*                 |
-| Connectors   | Go / Python    | Platform bridges (Matrix, etc.) *(coming soon)* |
-
-***
-
-## 🔌 Connector Interface
-
-Connectors communicate with the main service via **WebSocket**, using **CloudEvents JSON** as the message envelope. This
-means connectors never need to be publicly exposed — they simply open a persistent connection to the main service.
-
-```json
-{
-  "specversion": "1.0",
-  "type": "assistant.message.inbound",
-  "source": "urn:connector:matrix-1",
-  "id": "b3c0c2f0-1234-...",
-  "time": "2026-02-21T07:54:00Z",
-  "datacontenttype": "application/json",
-  "data": {
-    "connectorId": "matrix-1",
-    "conversationId": "conv-abc",
-    "roomId": "!abc:example.org",
-    "text": "Hey Cortex, what's on my schedule?"
-  }
-}
-```
-
-> ⚠️ The connector protocol is a **work in progress**. The specification will be finalized and documented separately.
+See the [Wiki](https://github.com/workaround-org/cortex-m/wiki) for full documentation.
 
 ***
 
@@ -127,7 +74,7 @@ docker compose up
 ## 🗺️ Roadmap
 
 - [x] Dynamic MCP server registry (Postgres-backed)
-- [ ] Multi-connector support via WebSocket + CloudEvents JSON
+- [x] Multi-connector support via WebSocket + CloudEvents JSON
 - [x] Vector memory store (PG-Vector embeddings)
 - [x] Direct runtime vector store access by the agent
 - [ ] Matrix connector (reference implementation)
