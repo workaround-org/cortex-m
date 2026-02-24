@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 @Singleton
 public class CortexMToolProvider implements ToolProvider
@@ -47,9 +48,12 @@ public class CortexMToolProvider implements ToolProvider
 	{
 		try
 		{
-			McpTransport streamableHttpMcpTransport = StreamableHttpMcpTransport.builder()
-				.url(config.getUrl())
-				.build();
+			StreamableHttpMcpTransport.Builder transportBuilder = StreamableHttpMcpTransport.builder()
+				.url(config.getUrl());
+			Optional.ofNullable(config.getAuthHeaderName())
+				.filter(name -> !name.isBlank())
+				.ifPresent(name -> transportBuilder.customHeaders(Map.of(name, config.getAuthHeaderValue())));
+			McpTransport streamableHttpMcpTransport = transportBuilder.build();
 			McpClient client = DefaultMcpClient.builder()
 				.transport(streamableHttpMcpTransport)
 				.key(config.getName())

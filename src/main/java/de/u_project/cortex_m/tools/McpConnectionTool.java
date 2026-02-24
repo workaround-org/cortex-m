@@ -18,11 +18,13 @@ public class McpConnectionTool
 
 	@Tool
 	@Transactional
-	public void addMcpConnection(String name, String url)
+	public void addMcpConnection(String name, String url, String authHeaderName, String authHeaderValue)
 	{
 		McpHttpConfig config = new McpHttpConfig();
 		config.setName(name);
 		config.setUrl(url);
+		config.setAuthHeaderName(authHeaderName);
+		config.setAuthHeaderValue(authHeaderValue);
 		mcpHttpConfigRepository.persist(config);
 		cortexMToolProvider.init();
 	}

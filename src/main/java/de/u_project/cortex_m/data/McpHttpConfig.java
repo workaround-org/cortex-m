@@ -13,7 +13,8 @@ public class McpHttpConfig
 	private Long id;
 	private String name;
 	private String url;
-	private String authHeader;
+	private String authHeaderName;
+	private String authHeaderValue;
 
 	public Long getId()
 	{
@@ -45,13 +46,23 @@ public class McpHttpConfig
 		this.url = url;
 	}
 
-	public String getAuthHeader()
+	public String getAuthHeaderName()
 	{
-		return authHeader;
+		return authHeaderName;
 	}
 
-	public void setAuthHeader(String authHeader)
+	public void setAuthHeaderName(String authHeaderName)
 	{
-		this.authHeader = authHeader;
+		this.authHeaderName = authHeaderName;
+	}
+
+	public String getAuthHeaderValue()
+	{
+		return authHeaderValue;
+	}
+
+	public void setAuthHeaderValue(String authHeaderValue)
+	{
+		this.authHeaderValue = authHeaderValue;
 	}
 }
