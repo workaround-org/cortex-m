@@ -16,10 +16,22 @@ public class McpConnectionTool
 	@Inject
 	CortexMToolProvider cortexMToolProvider;
 
-	@Tool
+	@Tool("Add MCP Connection. authHeaderValue is optional, If not used set to null.")
 	@Transactional
 	public void addMcpConnection(String name, String url, String authHeaderName, String authHeaderValue)
 	{
+		boolean emptyHeaderValue = authHeaderValue == null || authHeaderValue.isBlank();
+		boolean emptyHeaderName = authHeaderName == null || authHeaderName.isBlank();
+		if (emptyHeaderValue)
+		{
+			authHeaderName = null;
+			authHeaderValue = null;
+		}
+		// If authHeaderValue is provided but authHeaderName is not, default to "Authorization
+		else if (emptyHeaderName)
+		{
+			authHeaderName = "Authorization";
+		}
 		McpHttpConfig config = new McpHttpConfig();
 		config.setName(name);
 		config.setUrl(url);

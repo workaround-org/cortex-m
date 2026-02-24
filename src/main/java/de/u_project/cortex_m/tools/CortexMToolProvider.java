@@ -6,7 +6,6 @@ import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.mcp.McpToolProvider;
 import dev.langchain4j.mcp.client.DefaultMcpClient;
 import dev.langchain4j.mcp.client.McpClient;
-import dev.langchain4j.mcp.client.transport.McpTransport;
 import dev.langchain4j.mcp.client.transport.http.StreamableHttpMcpTransport;
 import dev.langchain4j.service.tool.ToolExecutor;
 import dev.langchain4j.service.tool.ToolProvider;
@@ -24,7 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 @Singleton
@@ -44,29 +42,37 @@ public class CortexMToolProvider implements ToolProvider
 	private Map<ToolSpecification, ToolExecutor> staticTools = new HashMap<>();
 	private McpToolProvider mcpToolProvider;
 
-	private static McpClient buildHttpClient(McpHttpConfig config)
+	private static Optional<McpClient> buildHttpMcpClient(McpHttpConfig config)
 	{
 		try
 		{
-			StreamableHttpMcpTransport.Builder transportBuilder = StreamableHttpMcpTransport.builder()
-				.url(config.getUrl());
-			Optional.ofNullable(config.getAuthHeaderName())
-				.filter(name -> !name.isBlank())
-				.ifPresent(name -> transportBuilder.customHeaders(Map.of(name, config.getAuthHeaderValue())));
-			McpTransport streamableHttpMcpTransport = transportBuilder.build();
+			StreamableHttpMcpTransport transport = getStreamableHttpMcpTransport(config);
 			McpClient client = DefaultMcpClient.builder()
-				.transport(streamableHttpMcpTransport)
+				.transport(transport)
 				.key(config.getName())
 				.clientName(config.getName())
 				.build();
 			log.info("Found {} tools for client {}", client.listTools().size(), config.getName());
-			return client;
+			return Optional.of(client);
 		}
 		catch (Exception e)
 		{
-			log.error("Error creating MCP client for config {}: {}", config.getName(), e.getMessage());
-			return null;
+			log.error("Error creating MCP client for config {}", config.getName(), e);
+			return Optional.empty();
 		}
+	}
+
+	private static StreamableHttpMcpTransport getStreamableHttpMcpTransport(McpHttpConfig config)
+	{
+		StreamableHttpMcpTransport.Builder transportBuilder = StreamableHttpMcpTransport.builder().url(config.getUrl());
+		String authHeaderName = config.getAuthHeaderName();
+		boolean hasHeader = authHeaderName != null && !authHeaderName.isBlank();
+		if (hasHeader)
+		{
+			Map<String, String> header = Map.of(authHeaderName, config.getAuthHeaderValue());
+			transportBuilder.customHeaders(header);
+		}
+		return transportBuilder.build();
 	}
 
 	@PostConstruct
@@ -94,8 +100,8 @@ public class CortexMToolProvider implements ToolProvider
 	protected List<McpClient> loadClientsFromDB()
 	{
 		return mcpConfigRepository.listAll().stream()
-			.map(CortexMToolProvider::buildHttpClient)
-			.filter(Objects::nonNull)
+			.map(CortexMToolProvider::buildHttpMcpClient)
+			.flatMap(Optional::stream)
 			.toList();
 	}
 
