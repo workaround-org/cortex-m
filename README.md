@@ -77,15 +77,17 @@ docker compose up
 - [x] Multi-connector support via WebSocket + CloudEvents JSON
 - [x] Vector memory store (PG-Vector embeddings)
 - [x] Direct runtime vector store access by the agent
-- [ ] Matrix connector (reference implementation)
 - [ ] Proactive task execution & scheduling (cron-based self-waking)
 - [ ] Soul / Personality initialization (interactive first-run setup & memory storage)
+- [ ] Admin UI with Chat compontent
+- [ ] Matrix connector
+- [ ] Telegram connector
 
 ***
 
 ## 🧠 Design Principles
 
-1. **Token efficiency over convenience** — Context is injected only when needed, not dumped wholesale.
+1. **Token efficiency** — Context is injected only when needed, not dumped wholesale.
 2. **Open standards** — MCP, CloudEvents, WebSocket; no proprietary lock-in.
 3. **Cloud-native** — Every component runs in a container; state lives in the database.
 4. **Strict sandboxing** — The agent does only what its registered tools allow. Nothing more.
