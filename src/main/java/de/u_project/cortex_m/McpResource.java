@@ -1,17 +1,11 @@
 package de.u_project.cortex_m;
 
-import de.u_project.cortex_m.data.McpHttpConfig;
-import de.u_project.cortex_m.data.McpHttpConfigRepository;
+import de.u_project.cortex_m.database.McpHttpConfig;
+import de.u_project.cortex_m.database.McpHttpConfigRepository;
 import de.u_project.cortex_m.tools.CortexMToolProvider;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
 import java.util.List;

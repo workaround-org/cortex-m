@@ -1,4 +1,4 @@
-package de.u_project.cortex_m.data;
+package de.u_project.cortex_m.database;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

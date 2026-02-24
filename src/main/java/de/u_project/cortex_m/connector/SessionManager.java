@@ -1,26 +1,26 @@
 package de.u_project.cortex_m.connector;
 
+import de.u_project.cortex_m.database.Session;
+import de.u_project.cortex_m.database.SessionRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 @ApplicationScoped
 public class SessionManager
 {
-	// ToDo: Use Postgres later
-	private static final Set<String> ACTIVE_SESSIONS = new HashSet<>();
+	@Inject
+	SessionRepository sessionRepository;
 
-	public synchronized String createSession()
+	@Transactional
+	public String createSession()
 	{
-		String sessionId = UUID.randomUUID().toString();
-		ACTIVE_SESSIONS.add(sessionId);
-		return sessionId;
+		Session session = sessionRepository.createSession();
+		return session.getId();
 	}
 
-	public synchronized boolean isValidSession(String sessionId)
+	public boolean isValidSession(String sessionId)
 	{
-		return ACTIVE_SESSIONS.contains(sessionId);
+		return sessionRepository.findByIdOptional(sessionId).isPresent();
 	}
 }

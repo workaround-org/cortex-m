@@ -1,7 +1,7 @@
 package de.u_project.cortex_m;
 
-import de.u_project.cortex_m.data.McpHttpConfig;
-import de.u_project.cortex_m.data.McpHttpConfigRepository;
+import de.u_project.cortex_m.database.McpHttpConfig;
+import de.u_project.cortex_m.database.McpHttpConfigRepository;
 import de.u_project.cortex_m.tools.CortexMToolProvider;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;

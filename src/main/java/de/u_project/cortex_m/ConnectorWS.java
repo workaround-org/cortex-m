@@ -7,9 +7,9 @@ import de.u_project.cortex_m.connector.InboundData;
 import de.u_project.cortex_m.connector.OutboundData;
 import de.u_project.cortex_m.connector.SessionManager;
 import io.quarkus.logging.Log;
-import io.quarkus.security.UnauthorizedException;
 import io.quarkus.websockets.next.*;
 import io.smallrye.common.annotation.Blocking;
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 
 import java.time.Instant;
@@ -35,16 +35,17 @@ public class ConnectorWS
 	SessionManager sessionManager;
 
 	@OnOpen
-	public void onOpen() throws InterruptedException
+	@Blocking
+	public Uni<Void> onOpen()
 	{
 		String session = connection.pathParam("session");
 		Log.infof("Connector connected: session=%s", session);
 		if (!sessionManager.isValidSession(session))
 		{
 			Log.warnf("Invalid session ID: %s. Closing connection.", session);
-			connection.close().wait();
-			throw new UnauthorizedException();
+			return connection.close();
 		}
+		return Uni.createFrom().voidItem();
 	}
 
 	@OnClose

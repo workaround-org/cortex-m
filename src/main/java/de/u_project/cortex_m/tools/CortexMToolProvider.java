@@ -1,7 +1,7 @@
 package de.u_project.cortex_m.tools;
 
-import de.u_project.cortex_m.data.McpHttpConfig;
-import de.u_project.cortex_m.data.McpHttpConfigRepository;
+import de.u_project.cortex_m.database.McpHttpConfig;
+import de.u_project.cortex_m.database.McpHttpConfigRepository;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.mcp.McpToolProvider;
 import dev.langchain4j.mcp.client.DefaultMcpClient;
@@ -19,11 +19,7 @@ import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Singleton
 public class CortexMToolProvider implements ToolProvider

@@ -1,7 +1,7 @@
 package de.u_project.cortex_m.tools;
 
-import de.u_project.cortex_m.data.McpHttpConfig;
-import de.u_project.cortex_m.data.McpHttpConfigRepository;
+import de.u_project.cortex_m.database.McpHttpConfig;
+import de.u_project.cortex_m.database.McpHttpConfigRepository;
 import dev.langchain4j.agent.tool.Tool;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
