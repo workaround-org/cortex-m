@@ -1,7 +1,11 @@
 package de.u_project.cortex_m.tools;
 
+import de.u_project.cortex_m.database.CortexMSoulRepository;
 import de.u_project.cortex_m.database.McpHttpConfig;
 import de.u_project.cortex_m.database.McpHttpConfigRepository;
+import de.u_project.cortex_m.tools.buildin.McpConnectionTool;
+import de.u_project.cortex_m.tools.buildin.MemoryTool;
+import de.u_project.cortex_m.tools.buildin.SoulTool;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.mcp.McpToolProvider;
 import dev.langchain4j.mcp.client.DefaultMcpClient;
@@ -19,21 +23,30 @@ import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Singleton
 public class CortexMToolProvider implements ToolProvider
 {
 	private static final Logger log = LoggerFactory.getLogger(CortexMToolProvider.class);
 
+	// Use Interface to inject
 	@Inject
 	MemoryTool memoryTool;
 	@Inject
-	// Use Interface to inject
 	McpConnectionTool mcpConnectionTool;
+	@Inject
+	SoulTool soulTool;
 
 	@Inject
 	McpHttpConfigRepository mcpConfigRepository;
+
+	@Inject
+	CortexMSoulRepository cortexMSoulRepository;
 
 	private Map<ToolSpecification, ToolExecutor> staticTools = new HashMap<>();
 	private McpToolProvider mcpToolProvider;
@@ -53,7 +66,7 @@ public class CortexMToolProvider implements ToolProvider
 		}
 		catch (Exception e)
 		{
-			log.error("Error creating MCP client for config {}", config.getName(), e);
+			log.error("Error creating MCP client for config {} -> {}<", config.getName(), e.getMessage());
 			return Optional.empty();
 		}
 	}
@@ -75,6 +88,13 @@ public class CortexMToolProvider implements ToolProvider
 	public void init()
 	{
 		staticTools = getToolConfig(List.of(memoryTool, mcpConnectionTool));
+		boolean hasSoul = cortexMSoulRepository.count() > 0;
+		if (!hasSoul)
+		{
+			log.info("No soul found in database, adding soul tool to tool provider");
+			Map<ToolSpecification, ToolExecutor> soulToolConfig = getToolConfig(List.of(soulTool));
+			staticTools.putAll(soulToolConfig);
+		}
 		List<McpClient> mcpClients = loadClientsFromDB();
 		this.mcpToolProvider = McpToolProvider.builder()
 			.mcpClients(mcpClients)

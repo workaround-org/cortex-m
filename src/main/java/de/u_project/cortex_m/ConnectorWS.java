@@ -1,16 +1,23 @@
 package de.u_project.cortex_m;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.u_project.cortex_m.bot.CortexMBot;
+import de.u_project.cortex_m.bot.CortexMService;
 import de.u_project.cortex_m.connector.CloudEvent;
 import de.u_project.cortex_m.connector.InboundData;
 import de.u_project.cortex_m.connector.OutboundData;
 import de.u_project.cortex_m.connector.SessionManager;
 import io.quarkus.logging.Log;
-import io.quarkus.websockets.next.*;
+import io.quarkus.websockets.next.OnClose;
+import io.quarkus.websockets.next.OnOpen;
+import io.quarkus.websockets.next.OnTextMessage;
+import io.quarkus.websockets.next.WebSocket;
+import io.quarkus.websockets.next.WebSocketConnection;
 import io.smallrye.common.annotation.Blocking;
 import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -21,9 +28,10 @@ public class ConnectorWS
 	static final String EVENT_TYPE_INBOUND = "assistant.message.inbound";
 	static final String EVENT_TYPE_OUTBOUND = "assistant.message.outbound";
 	static final String CORTEX_SOURCE = "urn:cortex-m";
+	private static final Logger log = LoggerFactory.getLogger(ConnectorWS.class);
 
 	@Inject
-	CortexMBot cortexMBot;
+	CortexMService cortexMBot;
 
 	@Inject
 	ObjectMapper objectMapper;
@@ -36,6 +44,7 @@ public class ConnectorWS
 
 	@OnOpen
 	@Blocking
+	@ActivateRequestContext
 	public Uni<Void> onOpen()
 	{
 		String session = connection.pathParam("session");
@@ -65,7 +74,9 @@ public class ConnectorWS
 		}
 
 		InboundData inbound = objectMapper.convertValue(envelope.data(), InboundData.class);
-		String reply = cortexMBot.chat(inbound.text());
+		log.debug("Get message for conversion: {}", inbound.conversationId());
+		String reply = cortexMBot.chat(inbound.text(), connection.pathParam("session"));
+		log.debug("Reply generated for connector: {}", inbound.connectorId());
 
 		OutboundData outboundData = new OutboundData(
 			inbound.connectorId(),

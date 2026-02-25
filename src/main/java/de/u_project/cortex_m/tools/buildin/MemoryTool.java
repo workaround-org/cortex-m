@@ -1,4 +1,4 @@
-package de.u_project.cortex_m.tools;
+package de.u_project.cortex_m.tools.buildin;
 
 import de.u_project.cortex_m.memory.MemoryIngestor;
 import dev.langchain4j.agent.tool.Tool;

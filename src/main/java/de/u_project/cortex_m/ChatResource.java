@@ -1,6 +1,6 @@
 package de.u_project.cortex_m;
 
-import de.u_project.cortex_m.bot.CortexMBot;
+import de.u_project.cortex_m.bot.CortexMService;
 import de.u_project.cortex_m.memory.MemoryIngestor;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.POST;
@@ -12,7 +12,7 @@ import jakarta.ws.rs.core.MediaType;
 public class ChatResource
 {
 	@Inject
-	CortexMBot cortexMBot;
+	CortexMService cortexMBot;
 
 	@Inject
 	MemoryIngestor memoryIngestor;
@@ -21,7 +21,7 @@ public class ChatResource
 	@Produces(MediaType.TEXT_PLAIN)
 	public String chat(String message)
 	{
-		return cortexMBot.chat(message);
+		return cortexMBot.chat(message, "default-memory");
 	}
 
 	@POST
