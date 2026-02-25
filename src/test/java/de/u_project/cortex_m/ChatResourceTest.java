@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
@@ -26,7 +27,7 @@ class ChatResourceTest
 	@Test
 	void testChat()
 	{
-		when(cortexMBot.chat("Hello", "test-memory", null)).thenReturn("Hi there!");
+		when(cortexMBot.chat(eq("Hello"), eq("default-memory"), anyString())).thenReturn("Hi there!");
 
 		given()
 			.contentType("text/plain")

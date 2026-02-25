@@ -2,7 +2,6 @@ package de.u_project.cortex_m;
 
 import de.u_project.cortex_m.database.McpHttpConfig;
 import de.u_project.cortex_m.database.McpHttpConfigRepository;
-import de.u_project.cortex_m.tools.CortexMToolProvider;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
@@ -19,9 +18,6 @@ import static org.hamcrest.Matchers.is;
 @TestHTTPEndpoint(McpResource.class)
 class McpResourceTest
 {
-	@Inject
-	CortexMToolProvider mToolProvider;
-
 	@Inject
 	McpHttpConfigRepository mcpHttpConfigRepository;
 
