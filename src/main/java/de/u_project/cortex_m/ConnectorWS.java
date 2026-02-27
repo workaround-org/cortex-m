@@ -74,8 +74,17 @@ public class ConnectorWS
 		}
 
 		InboundData inbound = objectMapper.convertValue(envelope.data(), InboundData.class);
+		String reply;
 		log.debug("Get message for conversion: {}", inbound.conversationId());
-		String reply = cortexMBot.chat(inbound.text(), connection.pathParam("session"));
+		try
+		{
+			reply = cortexMBot.chat(inbound.text(), connection.pathParam("session"));
+		}
+		catch (Exception ex)
+		{
+			log.error("Failed to execute Ai request", ex);
+			reply = "Sorry, something went wrong while processing your message ❌ " + ex.getClass().getSimpleName();
+		}
 		log.debug("Reply generated for connector: {}", inbound.connectorId());
 
 		OutboundData outboundData = new OutboundData(
