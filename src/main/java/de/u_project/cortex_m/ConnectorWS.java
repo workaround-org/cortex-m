@@ -10,6 +10,7 @@ import io.quarkus.logging.Log;
 import io.quarkus.websockets.next.OnClose;
 import io.quarkus.websockets.next.OnOpen;
 import io.quarkus.websockets.next.OnTextMessage;
+import io.quarkus.websockets.next.OpenConnections;
 import io.quarkus.websockets.next.WebSocket;
 import io.quarkus.websockets.next.WebSocketConnection;
 import io.smallrye.common.annotation.Blocking;
@@ -21,9 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @WebSocket(path = "/connector/{session}")
 public class ConnectorWS
@@ -32,7 +31,6 @@ public class ConnectorWS
 	static final String EVENT_TYPE_OUTBOUND = "assistant.message.outbound";
 	static final String CORTEX_SOURCE = "urn:cortex-m";
 	private static final Logger log = LoggerFactory.getLogger(ConnectorWS.class);
-	private static final List<WebSocketConnection> CONNECTIONS = new CopyOnWriteArrayList<>();
 
 	@Inject
 	CortexMService cortexMBot;
@@ -46,6 +44,9 @@ public class ConnectorWS
 	@Inject
 	SessionManager sessionManager;
 
+	@Inject
+	OpenConnections openConnections;
+
 	@OnOpen
 	@Blocking
 	@ActivateRequestContext
@@ -58,7 +59,6 @@ public class ConnectorWS
 			Log.warnf("Invalid session ID: %s. Closing connection.", session);
 			return connection.close();
 		}
-		CONNECTIONS.add(connection);
 		return Uni.createFrom().voidItem();
 	}
 
@@ -138,9 +138,8 @@ public class ConnectorWS
 			return;
 		}
 
-		for (WebSocketConnection conn : CONNECTIONS)
+		for (WebSocketConnection conn : openConnections.listAll())
 		{
-			// Does not work from TaskBean: ContextNotActiveException: SessionScoped context was not active when trying to obtain a bean instance for a client proxy of SYNTHETIC bean
 			conn.sendText(json).await().atMost(Duration.ofSeconds(60));
 		}
 	}

@@ -22,16 +22,17 @@ public class TaskTool implements CortexMTool
 
 	void onStart(@Observes StartupEvent event) throws SchedulerException
 	{
-		String reply = addTask(Instant.now().plusSeconds(30).toString(), "Party time!");
+		String reply = addTask(Instant.now().plusSeconds(20).toString(), "Party time!");
 		log.info(reply);
 	}
 
 	@Tool("Adds a task to be executed at a specific time by Cortex-M")
-	public String addTask(String executeAt, String prompt)
+	public String addTask(String executeAt, String llmPrompt)
 	{
 		try
 		{
-			taskBean.addTrigger("Remind the user to: " + prompt, Instant.parse(executeAt));
+			// Improve prompt / llm call
+			taskBean.addTrigger("Run the following task now: " + llmPrompt, Instant.parse(executeAt));
 			return "Successfully added task to execute at " + executeAt;
 		}
 		catch (SchedulerException e)
