@@ -2,6 +2,7 @@ package de.u_project.cortex_m.tools.buildin;
 
 import de.u_project.cortex_m.scheduler.TaskBean;
 import dev.langchain4j.agent.tool.Tool;
+import io.quarkus.runtime.LaunchMode;
 import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
@@ -22,8 +23,11 @@ public class TaskTool implements CortexMTool
 
 	void onStart(@Observes StartupEvent event) throws SchedulerException
 	{
-		String reply = addTask(Instant.now().plusSeconds(20).toString(), "Party time!");
-		log.info(reply);
+		if (LaunchMode.current().isDev())
+		{
+			String reply = addTask(Instant.now().plusSeconds(20).toString(), "Send a message that its party time!");
+			log.info(reply);
+		}
 	}
 
 	@Tool("Adds a task to be executed at a specific time by Cortex-M")
