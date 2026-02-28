@@ -11,7 +11,7 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 
 @ApplicationScoped
-public class McpConnectionTool
+public class McpConnectionTool implements CortexMTool
 {
 	@Inject
 	McpHttpConfigRepository mcpHttpConfigRepository;

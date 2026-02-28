@@ -6,7 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 @ApplicationScoped
-public class MemoryTool
+public class MemoryTool implements CortexMTool
 {
 	@Inject
 	MemoryIngestor memoryIngestor;

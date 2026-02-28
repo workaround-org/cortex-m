@@ -19,8 +19,11 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @WebSocket(path = "/connector/{session}")
 public class ConnectorWS
@@ -29,6 +32,7 @@ public class ConnectorWS
 	static final String EVENT_TYPE_OUTBOUND = "assistant.message.outbound";
 	static final String CORTEX_SOURCE = "urn:cortex-m";
 	private static final Logger log = LoggerFactory.getLogger(ConnectorWS.class);
+	private static final List<WebSocketConnection> CONNECTIONS = new CopyOnWriteArrayList<>();
 
 	@Inject
 	CortexMService cortexMBot;
@@ -54,6 +58,7 @@ public class ConnectorWS
 			Log.warnf("Invalid session ID: %s. Closing connection.", session);
 			return connection.close();
 		}
+		CONNECTIONS.add(connection);
 		return Uni.createFrom().voidItem();
 	}
 
@@ -102,5 +107,41 @@ public class ConnectorWS
 			"application/json",
 			outboundData
 		);
+	}
+
+	public void broadCast(String message)
+	{
+		OutboundData outboundData = new OutboundData(
+			null,
+			"broadcast",
+			message
+		);
+
+		CloudEvent cloudEvent = new CloudEvent(
+			"1.0",
+			EVENT_TYPE_OUTBOUND,
+			CORTEX_SOURCE,
+			UUID.randomUUID().toString(),
+			Instant.now().toString(),
+			"application/json",
+			outboundData
+		);
+
+		String json;
+		try
+		{
+			json = objectMapper.writeValueAsString(cloudEvent);
+		}
+		catch (Exception e)
+		{
+			log.error("Failed to serialize CloudEvent", e);
+			return;
+		}
+
+		for (WebSocketConnection conn : CONNECTIONS)
+		{
+			// Does not work from TaskBean: ContextNotActiveException: SessionScoped context was not active when trying to obtain a bean instance for a client proxy of SYNTHETIC bean
+			conn.sendText(json).await().atMost(Duration.ofSeconds(60));
+		}
 	}
 }

@@ -3,8 +3,7 @@ package de.u_project.cortex_m.tools;
 import de.u_project.cortex_m.database.CortexMSoulRepository;
 import de.u_project.cortex_m.database.McpHttpConfig;
 import de.u_project.cortex_m.database.McpHttpConfigRepository;
-import de.u_project.cortex_m.tools.buildin.McpConnectionTool;
-import de.u_project.cortex_m.tools.buildin.MemoryTool;
+import de.u_project.cortex_m.tools.buildin.CortexMTool;
 import de.u_project.cortex_m.tools.buildin.SoulTool;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.mcp.McpToolProvider;
@@ -16,6 +15,7 @@ import dev.langchain4j.service.tool.ToolProvider;
 import dev.langchain4j.service.tool.ToolProviderRequest;
 import dev.langchain4j.service.tool.ToolProviderResult;
 import io.quarkiverse.langchain4j.runtime.ToolsRecorder;
+import io.quarkus.arc.All;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,9 +37,9 @@ public class CortexMToolProvider implements ToolProvider
 
 	// Use Interface to inject
 	@Inject
-	MemoryTool memoryTool;
-	@Inject
-	McpConnectionTool mcpConnectionTool;
+	@All
+	List<CortexMTool> cortexMTools;
+
 	@Inject
 	SoulTool soulTool;
 
@@ -87,7 +88,7 @@ public class CortexMToolProvider implements ToolProvider
 	@PostConstruct
 	public void init()
 	{
-		staticTools = getToolConfig(List.of(memoryTool, mcpConnectionTool));
+		staticTools = getToolConfig(Arrays.asList(cortexMTools.toArray()));
 		boolean hasSoul = cortexMSoulRepository.count() > 0;
 		if (!hasSoul)
 		{

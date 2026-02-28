@@ -10,10 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
-public class SoulTool
+public class SoulTool implements CortexMTool
 {
 	private static final Logger log = LoggerFactory.getLogger(SoulTool.class);
-	
+
 	@Inject
 	CortexMSoulRepository repository;
 
