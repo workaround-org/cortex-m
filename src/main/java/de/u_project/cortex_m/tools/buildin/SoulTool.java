@@ -17,14 +17,17 @@ public class SoulTool implements CortexMTool
 	@Inject
 	CortexMSoulRepository repository;
 
-	@Tool
+	@Tool("Persist the AI persona definition (the 'soul') to the database. " +
+		"'soulText' should contain the full personality description, including name, traits, communication style, and any behavioral rules. " +
+		"Call this only during onboarding when the soul does not yet exist. " +
+		"Returns a confirmation with the assigned database id.")
 	@Transactional
-	public void saveSoul(String soulText)
+	public String saveSoul(String soulText)
 	{
-		// Save the soul data to the database
 		CortexMSoul soul = new CortexMSoul();
 		soul.setText(soulText);
 		repository.persist(soul);
 		log.info("Saved soul with id: {} and text {}", soul.getId(), soulText);
+		return "Soul saved successfully with id: " + soul.getId();
 	}
 }
