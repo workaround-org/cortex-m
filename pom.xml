@@ -88,7 +88,11 @@
             <groupId>io.quarkiverse.langchain4j</groupId>
             <artifactId>quarkus-langchain4j-mcp</artifactId>
         </dependency>
-        <!-- Ai Providers -->
+        <dependency>
+            <groupId>io.quarkiverse.langchain4j</groupId>
+            <artifactId>quarkus-langchain4j-openai</artifactId>
+        </dependency>
+        <!-- Other Ai Providers
         <dependency>
             <groupId>io.quarkiverse.langchain4j</groupId>
             <artifactId>quarkus-langchain4j-ollama</artifactId>
@@ -101,10 +105,7 @@
             <groupId>io.quarkiverse.langchain4j</groupId>
             <artifactId>quarkus-langchain4j-anthropic</artifactId>
         </dependency>
-        <dependency>
-            <groupId>io.quarkiverse.langchain4j</groupId>
-            <artifactId>quarkus-langchain4j-openai</artifactId>
-        </dependency>
+         -->
         <!-- Test dependencies -->
         <dependency>
             <groupId>io.quarkus</groupId>

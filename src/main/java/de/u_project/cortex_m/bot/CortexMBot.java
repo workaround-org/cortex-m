@@ -8,10 +8,7 @@ import dev.langchain4j.service.V;
 import io.quarkiverse.langchain4j.RegisterAiService;
 import jakarta.enterprise.context.ApplicationScoped;
 
-@RegisterAiService(
-	toolProviderSupplier = CortexMToolProviderSupplier.class,
-	chatLanguageModelSupplier = CortexMChatModelSupplier.class
-)
+@RegisterAiService(toolProviderSupplier = CortexMToolProviderSupplier.class)
 @ApplicationScoped
 public interface CortexMBot
 {
