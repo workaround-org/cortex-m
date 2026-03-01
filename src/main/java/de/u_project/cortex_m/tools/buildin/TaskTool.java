@@ -4,10 +4,7 @@ import de.u_project.cortex_m.database.ScheduledTask;
 import de.u_project.cortex_m.scheduler.RecurringSchedule;
 import de.u_project.cortex_m.scheduler.TaskBean;
 import dev.langchain4j.agent.tool.Tool;
-import io.quarkus.runtime.LaunchMode;
-import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
@@ -24,17 +21,6 @@ public class TaskTool implements CortexMTool
 
 	@Inject
 	TaskBean taskBean;
-
-	void onStart(@Observes StartupEvent event) throws SchedulerException
-	{
-		if (LaunchMode.current().isDev())
-		{
-			String reply = addTask(Instant.now().plusSeconds(20).toString(), "Send a message that its party time!");
-			log.info(reply);
-			reply = addRecurringTask(new RecurringSchedule("0/30 * * * * ?"), Instant.now().toString(), "Check if anyone is in the TeamSpeak Channels. Report to the user.");
-			log.info(reply);
-		}
-	}
 
 	@Tool("Schedule a one-time task for Cortex-M to execute at a specific moment. " +
 		"'executeAt' must be an ISO-8601 UTC timestamp (e.g. '2024-12-01T09:00:00Z'). " +
@@ -105,5 +91,11 @@ public class TaskTool implements CortexMTool
 			log.error("Failed to delete task {}: {}", id, e.getMessage());
 			return "Failed to delete task " + id + ": " + e.getMessage();
 		}
+	}
+
+	@Tool("Get the current date and time in ISO-8601 UTC format. Useful for scheduling tasks or including timestamps in prompts.")
+	public String getCurrentDate()
+	{
+		return Instant.now().toString();
 	}
 }
