@@ -47,7 +47,7 @@ public class TaskTool implements CortexMTool
 			taskBean.addTrigger("Execute the following task: " + llmPrompt, Instant.parse(executeAt));
 			return "Successfully added task to execute at " + executeAt;
 		}
-		catch (SchedulerException e)
+		catch (SchedulerException | java.time.format.DateTimeParseException e)
 		{
 			log.error("Failed to add task to execute at {}: {}", executeAt, e.getMessage());
 			return "Failed to add task to execute at " + executeAt + ": " + e.getMessage();
