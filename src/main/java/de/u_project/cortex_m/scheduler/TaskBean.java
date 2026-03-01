@@ -7,6 +7,7 @@ import de.u_project.cortex_m.database.CortexMSoulRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
@@ -52,18 +53,36 @@ public class TaskBean
 		quartz.scheduleJob(job, trigger);
 	}
 
+	public void addCronTrigger(String prompt, RecurringSchedule schedule, Instant startAt) throws SchedulerException
+	{
+		JobDetail job = JobBuilder.newJob(MyJob.class)
+			.withIdentity("cronJob" + startAt.toEpochMilli(), "myGroup")
+			.withDescription(prompt)
+			.build();
+		Trigger trigger = TriggerBuilder.newTrigger()
+			.withIdentity("cronTrigger" + startAt.toEpochMilli(), "myGroup")
+			.startAt(Date.from(startAt))
+			.withSchedule(CronScheduleBuilder.cronSchedule(schedule.cronExpression()))
+			.build();
+		quartz.scheduleJob(job, trigger);
+	}
+
 	@Transactional
 	void performTask(String prompt)
 	{
 		log.info("Executing task " + prompt);
+		String soulText = getSoulText();
+		String reply = bot.executeTask(prompt, soulText);
+		connectorWS.broadCast(reply);
+	}
+
+	private String getSoulText()
+	{
 		Optional<CortexMSoul> soul = soulRepository.findByIdOptional(1L);
 		CortexMSoul fallbackSoul = new CortexMSoul();
 		fallbackSoul.setText("You are a helpful assistant that performs tasks based on prompts. "
 			+ "Always provide clear and concise responses to the given prompts, ensuring that you address the user's needs effectively.");
-
-		String reply = bot.chat(prompt, "task", soul.orElseGet(() -> fallbackSoul).getText());
-		// broadcast the reply to all connected clients
-		connectorWS.broadCast(reply);
+		return soul.orElseGet(() -> fallbackSoul).getText();
 	}
 
 	// A new instance of MyJob is created by Quartz for every job execution

@@ -27,7 +27,7 @@ class ChatResourceTest
 	@Test
 	void testChat()
 	{
-		when(cortexMBot.chat(eq("Hello"), eq("default-memory"), anyString())).thenReturn("Hi there!");
+		when(cortexMBot.chat(eq("Hello"), eq("default-memory"), anyString(), anyString())).thenReturn("Hi there!");
 
 		given()
 			.contentType("text/plain")

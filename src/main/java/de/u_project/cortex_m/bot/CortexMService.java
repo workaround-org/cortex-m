@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
 
+import java.time.Instant;
 import java.util.Optional;
 
 @ApplicationScoped
@@ -26,6 +27,6 @@ public class CortexMService
 			// Create a new soul if none exists
 			return cortexMBot.onboard(message);
 		}
-		return cortexMBot.chat(message, memoryId, soul.get().getText());
+		return cortexMBot.chat(message, memoryId, soul.get().getText(), Instant.now().toString());
 	}
 }

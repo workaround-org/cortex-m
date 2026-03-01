@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 @ApplicationScoped
+// Works great for Ollama, but also needs to handle other providers like OpenAI, Anthropic, etc.
 public class CortexMChatModelSupplier implements Supplier<ChatModel>
 {
 	private static final Logger log = LoggerFactory.getLogger(CortexMChatModelSupplier.class);
