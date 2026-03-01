@@ -5,16 +5,18 @@ import de.u_project.cortex_m.bot.CortexMBot;
 import de.u_project.cortex_m.database.ScheduledTaskRepository;
 import de.u_project.cortex_m.scheduler.RecurringSchedule;
 import de.u_project.cortex_m.scheduler.TaskBean;
-import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.InjectMock;
+import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.MockitoConfig;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
 class TaskToolTest
@@ -42,8 +44,6 @@ class TaskToolTest
 	@Transactional
 	void listTasks_empty_returnsNoTasksMessage()
 	{
-		repository.deleteAll();
-
 		assertEquals("No scheduled tasks.", taskTool.listTasks());
 	}
 
@@ -51,7 +51,6 @@ class TaskToolTest
 	@Transactional
 	void listTasks_afterAddingTask_returnsFormattedEntry()
 	{
-		repository.deleteAll();
 		taskTool.addTask(Instant.now().plusSeconds(120).toString(), "Say hello");
 
 		String result = taskTool.listTasks();
@@ -66,7 +65,6 @@ class TaskToolTest
 	@Transactional
 	void addTask_success_returnsSuccessMessage()
 	{
-		repository.deleteAll();
 		String executeAt = Instant.now().plusSeconds(120).toString();
 
 		String result = taskTool.addTask(executeAt, "Ping");
@@ -89,7 +87,6 @@ class TaskToolTest
 	@Transactional
 	void addRecurringTask_success_returnsSuccessMessage()
 	{
-		repository.deleteAll();
 		RecurringSchedule schedule = new RecurringSchedule("0 0 9 * * ?");
 
 		String result = taskTool.addRecurringTask(schedule, Instant.now().toString(), "Daily report");
@@ -104,7 +101,6 @@ class TaskToolTest
 	@Transactional
 	void deleteTask_success_returnsSuccessMessage()
 	{
-		repository.deleteAll();
 		taskTool.addTask(Instant.now().plusSeconds(120).toString(), "Temp");
 		Long id = taskBean.listTasks().getFirst().getId();
 
@@ -119,5 +115,12 @@ class TaskToolTest
 		String result = taskTool.deleteTask(Long.MAX_VALUE);
 
 		assertTrue(result.contains("No task found with id"));
+	}
+
+	@BeforeEach
+	@Transactional
+	void clearDatabase()
+	{
+		repository.deleteAll();
 	}
 }
