@@ -26,9 +26,10 @@ public class TaskTool implements CortexMTool
 	{
 		if (LaunchMode.current().isDev())
 		{
-			// String reply = addTask(Instant.now().plusSeconds(20).toString(), "Send a message that its party time!");
-			// String reply = addRecurringTask(new RecurringSchedule("0/30 * * * * ?"), Instant.now().toString(), "Send a message that its party time!");
-			// log.info(reply);
+			String reply = addTask(Instant.now().plusSeconds(20).toString(), "Send a message that its party time!");
+			log.info(reply);
+			reply = addRecurringTask(new RecurringSchedule("0/30 * * * * ?"), Instant.now().toString(), "Check if anyone is in the TeamSpeak Channels. Report to the user.");
+			log.info(reply);
 		}
 	}
 
