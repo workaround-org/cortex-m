@@ -1,5 +1,6 @@
 package de.u_project.cortex_m.tools.buildin;
 
+import de.u_project.cortex_m.database.ScheduledTask;
 import de.u_project.cortex_m.scheduler.RecurringSchedule;
 import de.u_project.cortex_m.scheduler.TaskBean;
 import dev.langchain4j.agent.tool.Tool;
@@ -13,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class TaskTool implements CortexMTool
@@ -66,6 +69,41 @@ public class TaskTool implements CortexMTool
 		{
 			log.error("Failed to add recurring task: {}", e.getMessage());
 			return "Failed to add recurring task: " + e.getMessage();
+		}
+	}
+
+	@Tool("List all scheduled tasks. Returns each task's id, type (ONE_SHOT or CRON), prompt, " +
+		"and schedule details (executeAt for one-time tasks, cronExpression + startAt for recurring tasks). " +
+		"Use the returned id to delete a specific task.")
+	public String listTasks()
+	{
+		List<ScheduledTask> tasks = taskBean.listTasks();
+		if (tasks.isEmpty())
+		{
+			return "No scheduled tasks.";
+		}
+		return tasks.stream()
+			.map(ScheduledTask::toString)
+			.collect(Collectors.joining("\n"));
+	}
+
+	@Tool("Delete a scheduled task by its id. Use listTasks first to find the id. " +
+		"Works for both one-time and recurring tasks. The task is removed from the scheduler and will not execute again.")
+	public String deleteTask(Long id)
+	{
+		try
+		{
+			taskBean.deleteTask(id);
+			return "Successfully deleted task with id " + id;
+		}
+		catch (IllegalArgumentException e)
+		{
+			return e.getMessage();
+		}
+		catch (SchedulerException e)
+		{
+			log.error("Failed to delete task {}: {}", id, e.getMessage());
+			return "Failed to delete task " + id + ": " + e.getMessage();
 		}
 	}
 }

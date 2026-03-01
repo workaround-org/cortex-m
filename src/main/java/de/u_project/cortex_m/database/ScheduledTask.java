@@ -101,4 +101,19 @@ public class ScheduledTask
 	{
 		this.startAt = startAt;
 	}
+
+	@Override
+	public String toString()
+	{
+		if ("CRON".equals(taskType))
+		{
+			return String.format("[id=%d] RECURRING | cron=%s | startAt=%s | prompt: %s",
+				id, cronExpression, startAt, prompt);
+		}
+		else
+		{
+			return String.format("[id=%d] ONE-TIME  | executeAt=%s | prompt: %s",
+				id, executeAt, prompt);
+		}
+	}
 }

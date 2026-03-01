@@ -85,6 +85,21 @@ public class TaskBean
 	}
 
 	@Transactional
+	public List<ScheduledTask> listTasks()
+	{
+		return scheduledTaskRepository.listAll();
+	}
+
+	@Transactional
+	public void deleteTask(Long id) throws SchedulerException
+	{
+		ScheduledTask task = scheduledTaskRepository.findByIdOptional(id)
+			.orElseThrow(() -> new IllegalArgumentException("No task found with id " + id));
+		quartz.deleteJob(new org.quartz.JobKey(task.getJobName(), JOB_GROUP));
+		scheduledTaskRepository.deleteById(id);
+	}
+
+	@Transactional
 	void performTask(String prompt, String jobName, String taskType)
 	{
 		log.info("Executing task '{}'", prompt);
