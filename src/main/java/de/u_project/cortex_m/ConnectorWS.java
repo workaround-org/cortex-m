@@ -1,5 +1,6 @@
 package de.u_project.cortex_m;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.u_project.cortex_m.bot.CortexMService;
 import de.u_project.cortex_m.connector.CloudEvent;
@@ -7,12 +8,7 @@ import de.u_project.cortex_m.connector.InboundData;
 import de.u_project.cortex_m.connector.OutboundData;
 import de.u_project.cortex_m.connector.SessionManager;
 import io.quarkus.logging.Log;
-import io.quarkus.websockets.next.OnClose;
-import io.quarkus.websockets.next.OnOpen;
-import io.quarkus.websockets.next.OnTextMessage;
-import io.quarkus.websockets.next.OpenConnections;
-import io.quarkus.websockets.next.WebSocket;
-import io.quarkus.websockets.next.WebSocketConnection;
+import io.quarkus.websockets.next.*;
 import io.smallrye.common.annotation.Blocking;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.control.ActivateRequestContext;
@@ -70,8 +66,13 @@ public class ConnectorWS
 
 	@OnTextMessage
 	@Blocking
-	public CloudEvent onMessage(CloudEvent envelope) throws Exception
+	public String onMessage(String message) throws JsonProcessingException
 	{
+		if ("ping".equalsIgnoreCase(message))
+		{
+			return "pong";
+		}
+		CloudEvent envelope = objectMapper.readValue(message, CloudEvent.class);
 		if (!EVENT_TYPE_INBOUND.equals(envelope.type()))
 		{
 			Log.warnf("Ignoring unknown CloudEvent type: %s", envelope.type());
@@ -98,7 +99,7 @@ public class ConnectorWS
 			reply
 		);
 
-		return new CloudEvent(
+		CloudEvent cloudEvent = new CloudEvent(
 			"1.0",
 			EVENT_TYPE_OUTBOUND,
 			CORTEX_SOURCE,
@@ -107,6 +108,7 @@ public class ConnectorWS
 			"application/json",
 			outboundData
 		);
+		return objectMapper.writeValueAsString(cloudEvent);
 	}
 
 	public void broadCast(String message)
