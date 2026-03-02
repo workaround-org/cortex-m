@@ -1,0 +1,66 @@
+{#include base.html}
+
+    {#body}
+
+        <h1>MCP HTTP Connections</h1>
+
+        <div class="toolbar">
+            <button class="btn btn-primary" onclick="document.getElementById('addMcpModal').showModal()">
+                + Add Connection
+            </button>
+        </div>
+
+        <div class="card">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>URL</th>
+                    <th>Auth Header</th>
+                </tr>
+                </thead>
+                <tbody>
+                {#for config in configs}
+                    <tr>
+                        <td class="muted">{config.id}</td>
+                        <td><strong>{config.name}</strong></td>
+                        <td class="text-mono truncate">{config.url}</td>
+                        <td class="muted">{config.authHeaderName}</td>
+                    </tr>
+                {/for}
+                </tbody>
+            </table>
+        </div>
+
+        <dialog id="addMcpModal">
+            <div class="dialog-header">New MCP Connection</div>
+            <form method="dialog">
+                <div class="dialog-body">
+                    <label>
+                        Name
+                        <input type="text" name="name" required placeholder="my-mcp-server">
+                    </label>
+                    <label>
+                        URL
+                        <input type="url" name="url" required placeholder="https://mcp.example.com/sse">
+                    </label>
+                    <label>
+                        Auth Header Name
+                        <input type="text" name="authHeaderName" placeholder="Authorization">
+                    </label>
+                    <label>
+                        Auth Header Value
+                        <input type="text" name="authHeaderValue" placeholder="Bearer …">
+                    </label>
+                </div>
+                <div class="dialog-footer">
+                    <button class="btn btn-ghost" value="cancel">Cancel</button>
+                    <button class="btn btn-primary" value="default">Save</button>
+                </div>
+            </form>
+        </dialog>
+
+    {/body}
+
+{/include}

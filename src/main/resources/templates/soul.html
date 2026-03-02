@@ -1,0 +1,51 @@
+{#include base.html}
+
+    {#body}
+
+        <h1>Soul</h1>
+
+        <div class="toolbar">
+            <button class="btn btn-primary" onclick="document.getElementById('addSoulModal').showModal()">
+                + Add Soul
+            </button>
+        </div>
+
+        <div class="card">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Persona Text</th>
+                </tr>
+                </thead>
+                <tbody>
+                {#for soul in souls}
+                    <tr>
+                        <td class="muted">{soul.id}</td>
+                        <td class="truncate">{soul.text}</td>
+                    </tr>
+                {/for}
+                </tbody>
+            </table>
+        </div>
+
+        <dialog id="addSoulModal">
+            <div class="dialog-header">New Soul</div>
+            <form method="dialog">
+                <div class="dialog-body">
+                    <label>
+                        Persona Text
+                        <textarea name="text" required placeholder="You are a helpful AI assistant named Cortex…"
+                                  style="min-height:160px;"></textarea>
+                    </label>
+                </div>
+                <div class="dialog-footer">
+                    <button class="btn btn-ghost" value="cancel">Cancel</button>
+                    <button class="btn btn-primary" value="default">Save</button>
+                </div>
+            </form>
+        </dialog>
+
+    {/body}
+
+{/include}

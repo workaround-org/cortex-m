@@ -1,0 +1,95 @@
+{#include base.html}
+
+    {#body}
+
+        <h1>Scheduled Tasks</h1>
+
+        <div class="toolbar">
+            <button class="btn btn-primary" onclick="document.getElementById('addTaskModal').showModal()">
+                + Add Task
+            </button>
+        </div>
+
+        <div class="card">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Job Name</th>
+                    <th>Type</th>
+                    <th>Schedule</th>
+                    <th>Prompt</th>
+                </tr>
+                </thead>
+                <tbody>
+                {#for task in tasks}
+                    <tr>
+                        <td class="muted">{task.id}</td>
+                        <td class="text-mono">{task.jobName}</td>
+                        <td>
+                            {#if task.taskType == "CRON"}
+                                <span class="badge badge-purple">CRON</span>
+                            {#else}
+                                <span class="badge badge-blue">ONE-SHOT</span>
+                            {/if}
+                        </td>
+                        <td class="text-mono muted">
+                            {#if task.taskType == "CRON"}
+                                {task.cronExpression}
+                                {#if task.startAt}
+                                    <br><small>from {task.startAt}</small>
+                                {/if}
+                            {#else}
+                                {task.executeAt}
+                            {/if}
+                        </td>
+                        <td class="truncate">{task.prompt}</td>
+                    </tr>
+                {/for}
+                </tbody>
+            </table>
+        </div>
+
+        <dialog id="addTaskModal">
+            <div class="dialog-header">New Scheduled Task</div>
+            <form method="dialog">
+                <div class="dialog-body">
+                    <label>
+                        Job Name
+                        <input type="text" name="jobName" required placeholder="daily-summary">
+                    </label>
+                    <label>
+                        Task Type
+                        <select name="taskType" required>
+                            <option value="ONE_SHOT">One-Shot</option>
+                            <option value="CRON">Recurring (CRON)</option>
+                        </select>
+                    </label>
+                    <label>
+                        Execute At <small style="font-weight:400">(ONE-SHOT)</small>
+                        <input type="datetime-local" name="executeAt">
+                    </label>
+                    <label>
+                        Cron Expression <small style="font-weight:400">(CRON — 6 fields: sec min hr dom mon dow)</small>
+                        <input type="text" name="cronExpression" placeholder="0 0 8 * * ?">
+                    </label>
+                    <label>
+                        Start At <small style="font-weight:400">(CRON, optional)</small>
+                        <input type="datetime-local" name="startAt">
+                    </label>
+                    <label>
+                        Prompt
+                        <textarea name="prompt" required
+                                  placeholder="Summarise yesterday's activity and post it."></textarea>
+                    </label>
+                </div>
+                <div class="dialog-footer">
+                    <button class="btn btn-ghost" value="cancel">Cancel</button>
+                    <button class="btn btn-primary" value="default">Save</button>
+                </div>
+            </form>
+        </dialog>
+
+    {/body}
+
+{/include}
