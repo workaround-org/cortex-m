@@ -44,3 +44,6 @@ nb-configuration.xml
 # TLS Certificates
 .certs/
 /.java-version
+
+# Wiki
+wiki/
