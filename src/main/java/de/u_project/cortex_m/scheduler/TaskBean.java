@@ -56,7 +56,7 @@ public class TaskBean
 	}
 
 	@Transactional
-	public void addTrigger(String prompt, Instant executeAt) throws SchedulerException
+	public ScheduledTask addTrigger(String prompt, Instant executeAt) throws SchedulerException
 	{
 		String jobName = "myJob" + executeAt.toEpochMilli();
 		scheduleOneShotJob(jobName, prompt, executeAt);
@@ -67,10 +67,11 @@ public class TaskBean
 		task.setTaskType(TYPE_ONE_SHOT);
 		task.setExecuteAt(executeAt);
 		scheduledTaskRepository.persist(task);
+		return task;
 	}
 
 	@Transactional
-	public void addCronTrigger(String prompt, RecurringSchedule schedule, Instant startAt) throws SchedulerException
+	public ScheduledTask addCronTrigger(String prompt, RecurringSchedule schedule, Instant startAt) throws SchedulerException
 	{
 		String jobName = "cronJob" + startAt.toEpochMilli();
 		scheduleCronJob(jobName, prompt, schedule, startAt);
@@ -82,6 +83,7 @@ public class TaskBean
 		task.setCronExpression(schedule.cronExpression());
 		task.setStartAt(startAt);
 		scheduledTaskRepository.persist(task);
+		return task;
 	}
 
 	@Transactional
