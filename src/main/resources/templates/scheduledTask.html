@@ -2,7 +2,7 @@
 
     {#body}
 
-        <h1>Scheduled Tasks</h1>
+        <h1>📅 Scheduled Tasks</h1>
 
         <div class="toolbar">
             <button class="btn btn-primary" onclick="document.getElementById('addTaskModal').showModal()">
@@ -19,6 +19,7 @@
                     <th>Type</th>
                     <th>Schedule</th>
                     <th>Prompt</th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -44,7 +45,47 @@
                             {/if}
                         </td>
                         <td class="truncate">{task.prompt}</td>
+                        <td>
+                            <div style="display:flex;gap:.4rem">
+                            <button class="btn btn-ghost" type="button"
+                                    onclick="document.getElementById('edit-task-{task.id}').showModal()">Edit</button>
+                            <form action="{base}/{task.id}/delete" method="post">
+                                <button class="btn btn-danger" type="submit"
+                                        onclick="return confirm('Delete this task?')">Delete</button>
+                            </form>
+                            </div>
+                        </td>
                     </tr>
+                    <dialog id="edit-task-{task.id}">
+                        <div class="dialog-header">Edit Task #{task.id}</div>
+                        <form action="{base}/{task.id}" method="post">
+                            <div class="dialog-body">
+                                <label>Task Type
+                                    <select name="taskType" required>
+                                        <option value="ONE_SHOT" {#if task.taskType == "ONE_SHOT"}selected{/if}>One-Shot</option>
+                                        <option value="CRON" {#if task.taskType == "CRON"}selected{/if}>Recurring (CRON)</option>
+                                    </select>
+                                </label>
+                                <label>Execute At <small style="font-weight:400">(ONE-SHOT)</small>
+                                    <input type="datetime-local" name="executeAt" value="{task.executeAtLocal}">
+                                </label>
+                                <label>Cron Expression <small style="font-weight:400">(CRON — 6 fields: sec min hr dom mon dow)</small>
+                                    <input type="text" name="cronExpression" value="{task.cronExpression}">
+                                </label>
+                                <label>Start At <small style="font-weight:400">(CRON, optional)</small>
+                                    <input type="datetime-local" name="startAt" value="{task.startAtLocal}">
+                                </label>
+                                <label>Prompt
+                                    <textarea name="prompt" required>{task.prompt}</textarea>
+                                </label>
+                            </div>
+                            <div class="dialog-footer">
+                                <button class="btn btn-ghost" type="button"
+                                        onclick="this.closest('dialog').close()">Cancel</button>
+                                <button class="btn btn-primary" type="submit">Save</button>
+                            </div>
+                        </form>
+                    </dialog>
                 {/for}
                 </tbody>
             </table>
@@ -52,40 +93,32 @@
 
         <dialog id="addTaskModal">
             <div class="dialog-header">New Scheduled Task</div>
-            <form method="dialog">
+            <form action="{base}" method="post">
                 <div class="dialog-body">
-                    <label>
-                        Job Name
-                        <input type="text" name="jobName" required placeholder="daily-summary">
-                    </label>
-                    <label>
-                        Task Type
+                    <label>Task Type
                         <select name="taskType" required>
                             <option value="ONE_SHOT">One-Shot</option>
                             <option value="CRON">Recurring (CRON)</option>
                         </select>
                     </label>
-                    <label>
-                        Execute At <small style="font-weight:400">(ONE-SHOT)</small>
+                    <label>Execute At <small style="font-weight:400">(ONE-SHOT)</small>
                         <input type="datetime-local" name="executeAt">
                     </label>
-                    <label>
-                        Cron Expression <small style="font-weight:400">(CRON — 6 fields: sec min hr dom mon dow)</small>
+                    <label>Cron Expression <small style="font-weight:400">(CRON — 6 fields: sec min hr dom mon dow)</small>
                         <input type="text" name="cronExpression" placeholder="0 0 8 * * ?">
                     </label>
-                    <label>
-                        Start At <small style="font-weight:400">(CRON, optional)</small>
+                    <label>Start At <small style="font-weight:400">(CRON, optional)</small>
                         <input type="datetime-local" name="startAt">
                     </label>
-                    <label>
-                        Prompt
+                    <label>Prompt
                         <textarea name="prompt" required
                                   placeholder="Summarise yesterday's activity and post it."></textarea>
                     </label>
                 </div>
                 <div class="dialog-footer">
-                    <button class="btn btn-ghost" value="cancel">Cancel</button>
-                    <button class="btn btn-primary" value="default">Save</button>
+                    <button class="btn btn-ghost" type="button"
+                            onclick="this.closest('dialog').close()">Cancel</button>
+                    <button class="btn btn-primary" type="submit">Save</button>
                 </div>
             </form>
         </dialog>

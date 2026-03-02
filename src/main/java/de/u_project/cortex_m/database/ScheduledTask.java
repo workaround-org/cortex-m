@@ -102,6 +102,22 @@ public class ScheduledTask
 		this.startAt = startAt;
 	}
 
+	/** Returns executeAt as "yyyy-MM-ddTHH:mm" for datetime-local inputs, or empty string. */
+	public String getExecuteAtLocal()
+	{
+		if (executeAt == null) return "";
+		String s = executeAt.toString();
+		return s.length() >= 16 ? s.substring(0, 16) : s;
+	}
+
+	/** Returns startAt as "yyyy-MM-ddTHH:mm" for datetime-local inputs, or empty string. */
+	public String getStartAtLocal()
+	{
+		if (startAt == null) return "";
+		String s = startAt.toString();
+		return s.length() >= 16 ? s.substring(0, 16) : s;
+	}
+
 	@Override
 	public String toString()
 	{

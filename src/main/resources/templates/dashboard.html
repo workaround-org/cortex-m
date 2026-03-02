@@ -2,7 +2,7 @@
 
     {#body}
 
-        <h1>MCP HTTP Connections</h1>
+        <h1>🔌 MCP HTTP Connections</h1>
 
         <div class="toolbar">
             <button class="btn btn-primary" onclick="document.getElementById('addMcpModal').showModal()">
@@ -18,6 +18,7 @@
                     <th>Name</th>
                     <th>URL</th>
                     <th>Auth Header</th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -27,7 +28,42 @@
                         <td><strong>{config.name}</strong></td>
                         <td class="text-mono truncate">{config.url}</td>
                         <td class="muted">{config.authHeaderName}</td>
+                        <td style="white-space:nowrap">
+                            <button class="btn btn-ghost"
+                                    onclick="document.getElementById('edit-mcp-{config.id}').showModal()">
+                                Edit
+                            </button>
+                            <form action="{base}/{config.id}/delete" method="post" style="display:inline">
+                                <button class="btn btn-danger" type="submit"
+                                        onclick="return confirm('Delete this connection?')">Delete</button>
+                            </form>
+                        </td>
                     </tr>
+
+                    <dialog id="edit-mcp-{config.id}">
+                        <div class="dialog-header">Edit MCP Connection</div>
+                        <form action="{base}/{config.id}" method="post">
+                            <div class="dialog-body">
+                                <label>Name
+                                    <input type="text" name="name" value="{config.name}" required>
+                                </label>
+                                <label>URL
+                                    <input type="url" name="url" value="{config.url}" required>
+                                </label>
+                                <label>Auth Header Name
+                                    <input type="text" name="authHeaderName" value="{config.authHeaderName}">
+                                </label>
+                                <label>Auth Header Value
+                                    <input type="text" name="authHeaderValue" value="{config.authHeaderValue}">
+                                </label>
+                            </div>
+                            <div class="dialog-footer">
+                                <button class="btn btn-ghost" type="button"
+                                        onclick="this.closest('dialog').close()">Cancel</button>
+                                <button class="btn btn-primary" type="submit">Save</button>
+                            </div>
+                        </form>
+                    </dialog>
                 {/for}
                 </tbody>
             </table>
@@ -35,28 +71,25 @@
 
         <dialog id="addMcpModal">
             <div class="dialog-header">New MCP Connection</div>
-            <form method="dialog">
+            <form action="{base}" method="post">
                 <div class="dialog-body">
-                    <label>
-                        Name
+                    <label>Name
                         <input type="text" name="name" required placeholder="my-mcp-server">
                     </label>
-                    <label>
-                        URL
+                    <label>URL
                         <input type="url" name="url" required placeholder="https://mcp.example.com/sse">
                     </label>
-                    <label>
-                        Auth Header Name
+                    <label>Auth Header Name
                         <input type="text" name="authHeaderName" placeholder="Authorization">
                     </label>
-                    <label>
-                        Auth Header Value
+                    <label>Auth Header Value
                         <input type="text" name="authHeaderValue" placeholder="Bearer …">
                     </label>
                 </div>
                 <div class="dialog-footer">
-                    <button class="btn btn-ghost" value="cancel">Cancel</button>
-                    <button class="btn btn-primary" value="default">Save</button>
+                    <button class="btn btn-ghost" type="button"
+                            onclick="this.closest('dialog').close()">Cancel</button>
+                    <button class="btn btn-primary" type="submit">Save</button>
                 </div>
             </form>
         </dialog>

@@ -2,7 +2,7 @@
 
     {#body}
 
-        <h1>Soul</h1>
+        <h1>🪬 Soul</h1>
 
         <div class="toolbar">
             <button class="btn btn-primary" onclick="document.getElementById('addSoulModal').showModal()">
@@ -16,6 +16,7 @@
                 <tr>
                     <th>#</th>
                     <th>Persona Text</th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -23,7 +24,34 @@
                     <tr>
                         <td class="muted">{soul.id}</td>
                         <td class="truncate">{soul.text}</td>
+                        <td style="white-space:nowrap">
+                            <button class="btn btn-ghost"
+                                    onclick="document.getElementById('edit-soul-{soul.id}').showModal()">
+                                Edit
+                            </button>
+                            <form action="{base}/{soul.id}/delete" method="post" style="display:inline">
+                                <button class="btn btn-danger" type="submit"
+                                        onclick="return confirm('Delete this soul?')">Delete</button>
+                            </form>
+                        </td>
                     </tr>
+
+                    <dialog id="edit-soul-{soul.id}">
+                        <div class="dialog-header">Edit Soul</div>
+                        <form action="{base}/{soul.id}" method="post">
+                            <div class="dialog-body">
+                                <label>Persona Text
+                                    <textarea name="text" required
+                                              style="min-height:200px;">{soul.text}</textarea>
+                                </label>
+                            </div>
+                            <div class="dialog-footer">
+                                <button class="btn btn-ghost" type="button"
+                                        onclick="this.closest('dialog').close()">Cancel</button>
+                                <button class="btn btn-primary" type="submit">Save</button>
+                            </div>
+                        </form>
+                    </dialog>
                 {/for}
                 </tbody>
             </table>
@@ -31,17 +59,17 @@
 
         <dialog id="addSoulModal">
             <div class="dialog-header">New Soul</div>
-            <form method="dialog">
+            <form action="{base}" method="post">
                 <div class="dialog-body">
-                    <label>
-                        Persona Text
+                    <label>Persona Text
                         <textarea name="text" required placeholder="You are a helpful AI assistant named Cortex…"
                                   style="min-height:160px;"></textarea>
                     </label>
                 </div>
                 <div class="dialog-footer">
-                    <button class="btn btn-ghost" value="cancel">Cancel</button>
-                    <button class="btn btn-primary" value="default">Save</button>
+                    <button class="btn btn-ghost" type="button"
+                            onclick="this.closest('dialog').close()">Cancel</button>
+                    <button class="btn btn-primary" type="submit">Save</button>
                 </div>
             </form>
         </dialog>
