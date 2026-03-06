@@ -170,6 +170,10 @@ public class TaskBean
 	private void scheduleCronJob(String jobName, String prompt, RecurringSchedule schedule, Instant startAt)
 		throws SchedulerException
 	{
+		if (startAt.isBefore(Instant.now()))
+		{
+			startAt = Instant.now();
+		}
 		Trigger trigger = TriggerBuilder.newTrigger()
 			.withIdentity("cronTrigger" + startAt.toEpochMilli(), JOB_GROUP)
 			.startAt(Date.from(startAt))
