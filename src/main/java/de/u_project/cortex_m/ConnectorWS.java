@@ -8,7 +8,12 @@ import de.u_project.cortex_m.connector.InboundData;
 import de.u_project.cortex_m.connector.OutboundData;
 import de.u_project.cortex_m.connector.SessionManager;
 import io.quarkus.logging.Log;
-import io.quarkus.websockets.next.*;
+import io.quarkus.websockets.next.OnClose;
+import io.quarkus.websockets.next.OnOpen;
+import io.quarkus.websockets.next.OnTextMessage;
+import io.quarkus.websockets.next.OpenConnections;
+import io.quarkus.websockets.next.WebSocket;
+import io.quarkus.websockets.next.WebSocketConnection;
 import io.smallrye.common.annotation.Blocking;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.control.ActivateRequestContext;
@@ -68,8 +73,10 @@ public class ConnectorWS
 	@Blocking
 	public String onMessage(String message) throws JsonProcessingException
 	{
+		String session = connection.pathParam("session");
 		if ("ping".equalsIgnoreCase(message))
 		{
+			log.debug("Session {} is alive (ping received)", session);
 			return "pong";
 		}
 		CloudEvent envelope = objectMapper.readValue(message, CloudEvent.class);
@@ -84,7 +91,7 @@ public class ConnectorWS
 		log.debug("Get message for conversion: {}", inbound.conversationId());
 		try
 		{
-			reply = cortexMBot.chat(inbound.text(), connection.pathParam("session"));
+			reply = cortexMBot.chat(inbound.text(), session);
 		}
 		catch (Exception ex)
 		{
@@ -113,6 +120,11 @@ public class ConnectorWS
 
 	public void broadCast(String message)
 	{
+		if (openConnections.listAll().isEmpty())
+		{
+			log.warn("No open connections to broadcast message: {}", message);
+			return;
+		}
 		OutboundData outboundData = new OutboundData(
 			null,
 			"broadcast",

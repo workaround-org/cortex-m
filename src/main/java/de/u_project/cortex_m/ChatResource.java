@@ -17,11 +17,21 @@ public class ChatResource
 	@Inject
 	MemoryIngestor memoryIngestor;
 
+	@Inject
+	ConnectorWS connectorWS;
+
 	@POST
 	@Produces(MediaType.TEXT_PLAIN)
 	public String chat(String message)
 	{
 		return cortexMBot.chat(message, "default-memory");
+	}
+
+	@POST
+	@Path("broadcast")
+	public void broadcast(String message)
+	{
+		connectorWS.broadCast(message);
 	}
 
 	@POST
