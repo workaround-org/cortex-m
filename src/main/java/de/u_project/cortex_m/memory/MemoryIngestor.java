@@ -5,8 +5,10 @@ import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.rag.AugmentationRequest;
+import dev.langchain4j.rag.AugmentationResult;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
 import dev.langchain4j.rag.RetrievalAugmentor;
+import dev.langchain4j.rag.content.Content;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.rag.query.Metadata;
 import dev.langchain4j.store.embedding.EmbeddingStore;
@@ -66,8 +68,12 @@ public class MemoryIngestor
 		UserMessage userMessage = UserMessage.userMessage(query);
 		Metadata metadata = Metadata.from(userMessage, 1, List.of(userMessage));
 		AugmentationRequest augmentationRequest = new AugmentationRequest(userMessage, metadata);
-		// Improve return value. Does this include the full response?
-		UserMessage result = (UserMessage)augmenter.augment(augmentationRequest).chatMessage();
-		return result.toString();
+		AugmentationResult augment = augmenter.augment(augmentationRequest);
+		StringBuilder message = new StringBuilder();
+		for (Content content : augment.contents())
+		{
+			message.append(content.textSegment().text()).append("\n");
+		}
+		return message.toString();
 	}
 }
