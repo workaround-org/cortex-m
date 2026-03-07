@@ -91,7 +91,7 @@ public class ConnectorWS
 		log.debug("Get message for conversion: {}", inbound.conversationId());
 		try
 		{
-			reply = cortexMBot.chat(inbound.text(), session);
+			reply = cortexMBot.chat(inbound.text(), inbound.conversationId());
 		}
 		catch (Exception ex)
 		{
