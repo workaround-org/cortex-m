@@ -8,16 +8,19 @@
 [![CloudEvents](https://img.shields.io/badge/CloudEvents-1.0-lightgrey?logo=cloudevents)](https://cloudevents.io/)
 [![Build](https://img.shields.io/badge/build-Maven-C71A36?logo=apachemaven)](https://maven.apache.org/)
 
-A cloud-native, modular, and token-efficient personal assistant framework built on open standards.
+A cloud-native, modular, and token-efficient personal assistant framework built on open standards — independent of US
+cloud providers.
 
 ***
 
 ## What is Cortex-M?
 
-Cortex-M is a personal assistant microservice designed to be **affordable**, **stable**, and **highly extensible**.
+Cortex-M is a personal assistant microservice designed to be **affordable**, **stable**, **highly extensible**, and *
+*independent of US cloud providers**.
 Instead of relying on fragile instruction files and granting the agent broad system access, Cortex-M is built around
 open standards — using the **Model Context Protocol (MCP)** for tools and a **vector database** for memory — keeping
-token usage lean and behavior predictable.
+token usage lean and behavior predictable. Native support for **MistralAI** ensures you can run cutting-edge models
+without vendor lock-in.
 
 The name reflects both its role as the central "brain" of your assistant infrastructure and its foundation on Quarkus —
 the *Supersonic Subatomic Java* framework.
@@ -26,6 +29,8 @@ the *Supersonic Subatomic Java* framework.
 
 ## ✨ Features
 
+- **Provider-agnostic models** — Native support for **MistralAI** and other non-US providers. Deploy on your own
+  infrastructure with zero vendor lock-in.
 - **MCP-first tooling** — All agent capabilities are defined as structured MCP servers, registered in a database and
   dynamically loaded at startup or runtime.
 - **Dynamic tool management** — Add or update MCP servers without redeploying the core service.
@@ -35,7 +40,7 @@ the *Supersonic Subatomic Java* framework.
   cloud deployments.
 - **Sandboxed execution** — The agent has no access to the local shell or file system; all capabilities are strictly
   scoped to registered MCP tools.
-- **Vector memory** *(coming soon)* — A PG-Vector-backed memory store allows the agent to ingest and retrieve
+- **Vector memory** — A PG-Vector-backed memory store allows the agent to ingest and retrieve
   experiences as embeddings, replacing token-heavy history files with efficient semantic search.
 
 ***
@@ -77,11 +82,11 @@ docker compose up
 - [x] Multi-connector support via WebSocket + CloudEvents JSON
 - [x] Vector memory store (PG-Vector embeddings)
 - [x] Direct runtime vector store access by the agent
-- [ ] Proactive task execution & scheduling (cron-based self-waking)
-- [ ] Soul / Personality initialization (interactive first-run setup & memory storage)
+- [x] Proactive task execution & scheduling (cron-based self-waking)
+- [x] Soul / Personality initialization (interactive first-run setup & memory storage)
+- [x] Matrix connector
+- [x] Telegram connector
 - [ ] Admin UI with Chat compontent
-- [ ] Matrix connector
-- [ ] Telegram connector
 
 ***
 
@@ -91,6 +96,7 @@ docker compose up
 2. **Open standards** — MCP, CloudEvents, WebSocket; no proprietary lock-in.
 3. **Cloud-native** — Every component runs in a container; state lives in the database.
 4. **Strict sandboxing** — The agent does only what its registered tools allow. Nothing more.
+5. **Provider independence** — Support for non-US models and infrastructure; your data stays under your control.
 
 ***
 
