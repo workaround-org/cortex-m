@@ -18,6 +18,7 @@ import io.smallrye.common.annotation.Blocking;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +80,7 @@ public class ConnectorWS
 			log.debug("Session {} is alive (ping received)", session);
 			return "pong";
 		}
+
 		CloudEvent envelope = objectMapper.readValue(message, CloudEvent.class);
 		if (!EVENT_TYPE_INBOUND.equals(envelope.type()))
 		{
@@ -86,6 +88,12 @@ public class ConnectorWS
 			return null;
 		}
 
+		CloudEvent cloudEvent = handleCloudEvent(envelope);
+		return objectMapper.writeValueAsString(cloudEvent);
+	}
+
+	private @NonNull CloudEvent handleCloudEvent(CloudEvent envelope)
+	{
 		InboundData inbound = objectMapper.convertValue(envelope.data(), InboundData.class);
 		String reply;
 		log.debug("Get message for conversion: {}", inbound.conversationId());
@@ -106,7 +114,7 @@ public class ConnectorWS
 			reply
 		);
 
-		CloudEvent cloudEvent = new CloudEvent(
+		return new CloudEvent(
 			"1.0",
 			EVENT_TYPE_OUTBOUND,
 			CORTEX_SOURCE,
@@ -115,7 +123,6 @@ public class ConnectorWS
 			"application/json",
 			outboundData
 		);
-		return objectMapper.writeValueAsString(cloudEvent);
 	}
 
 	public void broadCast(String message)
