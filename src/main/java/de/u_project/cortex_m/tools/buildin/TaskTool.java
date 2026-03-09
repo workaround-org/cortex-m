@@ -22,15 +22,15 @@ public class TaskTool implements CortexMTool
 	@Inject
 	TaskBean taskBean;
 
-	@Tool("Schedule a one-time task for Cortex-M to execute at a specific moment. " +
+	@Tool("Schedule a one-time task to execute at a specific moment. " +
 		"'executeAt' must be an ISO-8601 UTC timestamp (e.g. '2024-12-01T09:00:00Z'). " +
-		"'llmPrompt' describes what Cortex-M should do when the time comes.")
+		"'llmPrompt' describes what the agent should do when the time comes.")
 	public String addTask(String executeAt, String llmPrompt)
 	{
 		try
 		{
 			// Improve prompt / llm call
-			taskBean.addTrigger("Execute the following task: " + llmPrompt, Instant.parse(executeAt));
+			taskBean.addTrigger(llmPrompt, Instant.parse(executeAt));
 			return "Successfully added task to execute at " + executeAt;
 		}
 		catch (SchedulerException | java.time.format.DateTimeParseException e)
@@ -40,10 +40,10 @@ public class TaskTool implements CortexMTool
 		}
 	}
 
-	@Tool("Schedule a recurring task for Cortex-M using a Quartz cron expression (6 fields: seconds minutes hours day-of-month month day-of-week, " +
+	@Tool("Schedule a recurring task using a Quartz cron expression (6 fields: seconds minutes hours day-of-month month day-of-week, " +
 		"e.g. '0 0 9 * * ?' for daily at 9am, '0 0/30 * * * ?' for every 30 minutes). " +
 		"'startDate' is an ISO-8601 UTC timestamp for when the schedule begins. " +
-		"'llmPrompt' describes what Cortex-M should do on each execution.")
+		"'llmPrompt' describes what the agent should do on each execution.")
 	public String addRecurringTask(RecurringSchedule schedule, String startDate, String llmPrompt)
 	{
 		try

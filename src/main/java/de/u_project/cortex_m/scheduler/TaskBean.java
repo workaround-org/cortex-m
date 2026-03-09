@@ -106,7 +106,7 @@ public class TaskBean
 	{
 		log.info("Executing task '{}'", prompt);
 		String soulText = getSoulText();
-		String reply = bot.executeTask(prompt, soulText, Instant.now().toString());
+		String reply = bot.executeTask(prompt, soulText, Instant.now().toString(), jobName);
 		connectorWS.broadCast(reply);
 
 		// One-shot tasks are done after a single execution; remove from DB

@@ -83,16 +83,14 @@ public interface CortexMBot
 		
 		Current Date: {date}
 		
-		## Task
-		{taskPrompt}
-		
 		## Execution Guidelines
 		- Carry out the task precisely as described. Do not ask clarifying questions — act on the best interpretation.
+		- If needed, pick at tools to complete the task, but do not mention the tools or your actions.
 		- **Do NOT confirm or narrate actions** (no "Calendar synced!", "Done!", "I've fetched…", etc.). Skip straight to the result.
 		- **Do NOT end with questions or offers** (no "Need anything else?", "Let me know if…", "Anything I can help with?").
 		- Present results directly, clearly, and concisely. Use tables, lists, or structured formatting where it aids readability.
 		- Match the user's preferred tone from their soul, but keep it brief — this is an automated report, not a conversation.
 		- If the task cannot be completed, state the reason in one sentence and suggest a practical alternative.
 		""")
-	String executeTask(@V("taskPrompt") String taskPrompt, @V("soul") String soul, @V("date") String date);
+	String executeTask(@UserMessage String taskPrompt, @V("soul") String soul, @V("date") String date, @MemoryId Object memoryId);
 }
