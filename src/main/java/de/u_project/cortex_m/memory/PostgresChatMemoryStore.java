@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import de.u_project.cortex_m.database.ChatMemory;
 import de.u_project.cortex_m.database.ChatMemoryRepository;
+import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
+import dev.langchain4j.data.message.ChatMessageType;
 import dev.langchain4j.store.memory.chat.ChatMemoryStore;
 import io.quarkiverse.langchain4j.QuarkusJsonCodecFactory;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -20,7 +22,8 @@ import java.util.Optional;
 @ApplicationScoped
 public class PostgresChatMemoryStore implements ChatMemoryStore
 {
-	private static final TypeReference<List<ChatMessage>> MESSAGE_LIST_TYPE = new TypeReference<>() {
+	private static final TypeReference<List<ChatMessage>> MESSAGE_LIST_TYPE = new TypeReference<>()
+	{
 	};
 
 	@Inject
@@ -38,7 +41,7 @@ public class PostgresChatMemoryStore implements ChatMemoryStore
 		try
 		{
 			return QuarkusJsonCodecFactory.ObjectMapperHolder.MAPPER.readValue(
-					stored.get().getMessagesJson(), MESSAGE_LIST_TYPE);
+				stored.get().getMessagesJson(), MESSAGE_LIST_TYPE);
 		}
 		catch (IOException e)
 		{
@@ -52,9 +55,19 @@ public class PostgresChatMemoryStore implements ChatMemoryStore
 	{
 		try
 		{
+			boolean lastIsAI = messages.getLast().type().equals(ChatMessageType.AI);
+			if (lastIsAI)
+			{
+				AiMessage ai = (AiMessage)messages.getLast();
+				boolean isInvalid = !ai.hasToolExecutionRequests() && ai.text() == null;
+				if (isInvalid)
+				{
+					throw new IllegalStateException("AiMessage has no text or tool execution requests. It will not be stored in memory.");
+				}
+			}
 			String json = QuarkusJsonCodecFactory.ObjectMapperHolder.MAPPER.writeValueAsString(messages);
 			ChatMemory chatMemory = repository.findByIdOptional(memoryId.toString())
-					.orElseGet(() -> new ChatMemory(memoryId.toString(), json));
+				.orElseGet(() -> new ChatMemory(memoryId.toString(), json));
 			chatMemory.setMessagesJson(json);
 			repository.persist(chatMemory);
 		}
