@@ -67,7 +67,7 @@ public class CortexMToolProvider implements ToolProvider
 		}
 		catch (Exception e)
 		{
-			log.error("Error creating MCP client for config {} -> {}<", config.getName(), e.getMessage());
+			log.error("Error creating MCP client for config {} -> {}", config.getName(), e.getMessage());
 			return Optional.empty();
 		}
 	}
@@ -116,7 +116,7 @@ public class CortexMToolProvider implements ToolProvider
 	@ActivateRequestContext
 	protected List<McpClient> loadClientsFromDB()
 	{
-		return mcpConfigRepository.listAll().stream()
+		return mcpConfigRepository.list("enabled", true).stream()
 			.map(CortexMToolProvider::buildHttpMcpClient)
 			.flatMap(Optional::stream)
 			.toList();

@@ -2,6 +2,7 @@ package de.u_project.cortex_m.dashboard;
 
 import de.u_project.cortex_m.database.McpHttpConfig;
 import de.u_project.cortex_m.database.McpHttpConfigRepository;
+import de.u_project.cortex_m.tools.CortexMToolProvider;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 import jakarta.inject.Inject;
@@ -25,6 +26,9 @@ public class McpConfigResource extends DashboardSupport
 	@Inject
 	McpHttpConfigRepository repository;
 
+	@Inject
+	CortexMToolProvider toolProvider;
+
 	@GET
 	@Produces(MediaType.TEXT_HTML)
 	public TemplateInstance list()
@@ -41,14 +45,17 @@ public class McpConfigResource extends DashboardSupport
 		@FormParam("name") String name,
 		@FormParam("url") String url,
 		@FormParam("authHeaderName") String authHeaderName,
-		@FormParam("authHeaderValue") String authHeaderValue)
+		@FormParam("authHeaderValue") String authHeaderValue,
+		@FormParam("enabled") String enabledParam)
 	{
 		McpHttpConfig config = new McpHttpConfig();
 		config.setName(name);
 		config.setUrl(url);
 		config.setAuthHeaderName(authHeaderName);
 		config.setAuthHeaderValue(authHeaderValue);
+		config.setEnabled(enabledParam != null);
 		repository.persist(config);
+		toolProvider.init();
 		return seeOther("mcp-configs");
 	}
 
@@ -61,7 +68,8 @@ public class McpConfigResource extends DashboardSupport
 		@FormParam("name") String name,
 		@FormParam("url") String url,
 		@FormParam("authHeaderName") String authHeaderName,
-		@FormParam("authHeaderValue") String authHeaderValue)
+		@FormParam("authHeaderValue") String authHeaderValue,
+		@FormParam("enabled") String enabledParam)
 	{
 		McpHttpConfig config = repository.findById(id);
 		if (config == null) return Response.status(Response.Status.NOT_FOUND).build();
@@ -69,6 +77,20 @@ public class McpConfigResource extends DashboardSupport
 		config.setUrl(url);
 		config.setAuthHeaderName(authHeaderName);
 		config.setAuthHeaderValue(authHeaderValue);
+		config.setEnabled(enabledParam != null);
+		toolProvider.init();
+		return seeOther("mcp-configs");
+	}
+
+	@POST
+	@Path("{id}/toggle")
+	@Transactional
+	public Response toggle(@PathParam("id") Long id)
+	{
+		McpHttpConfig config = repository.findById(id);
+		if (config == null) return Response.status(Response.Status.NOT_FOUND).build();
+		config.setEnabled(!config.isEnabled());
+		toolProvider.init();
 		return seeOther("mcp-configs");
 	}
 
@@ -78,6 +100,7 @@ public class McpConfigResource extends DashboardSupport
 	public Response delete(@PathParam("id") Long id)
 	{
 		repository.deleteById(id);
+		toolProvider.init();
 		return seeOther("mcp-configs");
 	}
 }

@@ -72,5 +72,40 @@ class McpResourceTest
 			.then()
 			.statusCode(204);
 	}
+
+	@Test
+	void testAddMcpConnectionDefaultEnabled()
+	{
+		McpHttpConfig config = new McpHttpConfig();
+		config.setName("default-enabled");
+		config.setUrl("http://default/mcp/");
+
+		given()
+			.contentType(ContentType.JSON)
+			.body(config)
+			.when()
+			.post()
+			.then()
+			.statusCode(200)
+			.body("enabled", is(true));
+	}
+
+	@Test
+	void testAddMcpConnectionDisabled()
+	{
+		McpHttpConfig config = new McpHttpConfig();
+		config.setName("disabled-mcp");
+		config.setUrl("http://disabled/mcp/");
+		config.setEnabled(false);
+
+		given()
+			.contentType(ContentType.JSON)
+			.body(config)
+			.when()
+			.post()
+			.then()
+			.statusCode(200)
+			.body("enabled", is(false));
+	}
 }
 

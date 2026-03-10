@@ -18,6 +18,7 @@
                     <th>Name</th>
                     <th>URL</th>
                     <th>Auth Header</th>
+                    <th>Enabled</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
@@ -28,6 +29,11 @@
                         <td><strong>{config.name}</strong></td>
                         <td class="text-mono truncate">{config.url}</td>
                         <td class="muted">{config.authHeaderName}</td>
+                        <td>
+                            <form action="{base}/{config.id}/toggle" method="post" style="display:inline">
+                                <button class="btn btn-ghost" type="submit">{#if config.enabled}✅{#else}⛔{/if}</button>
+                            </form>
+                        </td>
                         <td style="white-space:nowrap">
                             <button class="btn btn-ghost"
                                     onclick="document.getElementById('edit-mcp-{config.id}').showModal()">
@@ -55,6 +61,9 @@
                                 </label>
                                 <label>Auth Header Value
                                     <input type="text" name="authHeaderValue" value="{config.authHeaderValue}">
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="enabled" value="true" {#if config.enabled}checked{/if}> Enabled
                                 </label>
                             </div>
                             <div class="dialog-footer">
@@ -84,6 +93,9 @@
                     </label>
                     <label>Auth Header Value
                         <input type="text" name="authHeaderValue" placeholder="Bearer …">
+                    </label>
+                    <label>
+                        <input type="checkbox" name="enabled" value="true" checked> Enabled
                     </label>
                 </div>
                 <div class="dialog-footer">

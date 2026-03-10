@@ -7,7 +7,7 @@ VALUES (1,
         'warm and casual tone. Use humor naturally and keep the vibe lighthearted.');
 alter sequence cortexmsoul_seq restart with 2;
 
-insert into mcphttpconfig (id, name, url, authheadername, authheadervalue)
-values (1, 'example-mcp', 'http://localhost:8008/mcp/', null, null);
+insert into mcphttpconfig (id, name, url, authheadername, authheadervalue, enabled)
+values (1, 'example-mcp', 'https://localhost:8008/mcp', null, null, true);
 
 alter sequence mcphttpconfig_seq restart with 2;

@@ -15,6 +15,7 @@ public class McpHttpConfig
 	private String url;
 	private String authHeaderName;
 	private String authHeaderValue;
+	private boolean enabled = true;
 
 	public Long getId()
 	{
@@ -64,5 +65,15 @@ public class McpHttpConfig
 	public void setAuthHeaderValue(String authHeaderValue)
 	{
 		this.authHeaderValue = authHeaderValue;
+	}
+
+	public boolean isEnabled()
+	{
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled)
+	{
+		this.enabled = enabled;
 	}
 }
