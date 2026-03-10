@@ -25,10 +25,11 @@ services:
       QUARKUS_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       # Use this only for the first start - Flyway will be added later
       QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION: create
-      # Ollama Cloud
-      QUARKUS_LANGCHAIN4J_OLLAMA_BASE_URL: https://ollama.com
-      OLLAMA_MODEL_NAME: gpt-oss:120b-cloud
-      API_KEY: ${OLLAMA_API_KEY}
+      # Provider
+      PROVIDER_NAME: ${PROVIDER_NAME}
+      PROVIDER_API_KEY: ${PROVIDER_API_KEY}
+      PROVIDER_CHAT_MODEL_NAME: ${PROVIDER_CHAT_MODEL_NAME}
+      PROVIDER_EMEDDNING_MODEL_NAME: ${PROVIDER_EMEDDNING_MODEL_NAME}
     ports:
       - 8888:8080
     healthcheck:
@@ -39,18 +40,6 @@ services:
       start_period: 30s
     depends_on:
       db:
-        condition: service_healthy
-
-  telegram-connector:
-    image: ghcr.io/workaround-org/cortex-m-telegram:main
-    restart: unless-stopped
-    environment:
-      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
-      CORTEX_M_URL: ${CORTEX_M_URL:-http://cortexm:8080/api/cortex-m/v1}
-      CONNECTOR_ID: ${CONNECTOR_ID:-telegram-1}
-      TELEGRAM_ALLOWLIST: ${USER_ID:-}
-    depends_on:
-      cortexm:
         condition: service_healthy
 
 volumes:
