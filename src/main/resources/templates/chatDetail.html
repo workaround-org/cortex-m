@@ -1,0 +1,31 @@
+{#include base.html}
+
+    {#body}
+
+        <h1>💬 Chat Memory Details</h1>
+
+        <div class="toolbar">
+            <a class="btn btn-ghost" href="{listBase}">← Back to Chat Memory</a>
+        </div>
+
+        <div class="card" style="padding:1rem 1.25rem; margin-bottom:1rem;">
+            <div class="muted" style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">Memory ID</div>
+            <div class="text-mono" style="font-size:1rem; margin-top:0.35rem; word-break:break-word;">{session.memoryId}</div>
+        </div>
+
+        <div class="card" style="padding: 1rem; max-width: 1100px;">
+            <div style="display:flex; flex-direction:column; gap:0.75rem; min-height: 420px;">
+                {#for message in session.messages}
+                    <div style="border-radius: 10px; padding: 0.8rem 1rem; width: 100%; {#if message.role == 'user'}background:#dbeafe;border:1px solid #bfdbfe;{#else if message.role == 'ai'}background:#dcfce7;border:1px solid #bbf7d0;{#else if message.role == 'tool'}background:#f3e8ff;border:1px solid #e9d5ff;{#else if message.role == 'error'}background:#fee2e2;border:1px solid #fecaca;{#else}background:#f3f4f6;border:1px solid #e5e7eb;{/if}">
+                        <div style="font-size:0.72rem; text-transform: uppercase; letter-spacing:0.04em; font-weight:600; color:#6b7280; margin-bottom:0.35rem;">
+                            {message.role}
+                        </div>
+                        <div style="white-space: pre-wrap; word-break: break-word; line-height: 1.45;">{message.text}</div>
+                    </div>
+                {/for}
+            </div>
+        </div>
+
+    {/body}
+
+{/include}
