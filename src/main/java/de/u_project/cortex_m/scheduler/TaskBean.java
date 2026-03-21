@@ -21,6 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +36,8 @@ public class TaskBean
 	static final String JOB_DATA_NAME = "jobName";
 	private static final Logger log = LoggerFactory.getLogger(TaskBean.class);
 	private static final String JOB_GROUP = "myGroup";
+	private static final DateTimeFormatter TASK_RUN_TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
+		.withZone(ZoneOffset.UTC);
 
 	@Inject
 	org.quartz.Scheduler quartz;
@@ -106,7 +110,8 @@ public class TaskBean
 	{
 		log.info("Executing task '{}'", prompt);
 		String soulText = getSoulText();
-		String reply = bot.executeTask(prompt, soulText, Instant.now().toString(), jobName + "_at_" + Instant.now().toString());
+		String formatted = TASK_RUN_TIMESTAMP_FORMATTER.format(Instant.now());
+		String reply = bot.executeTask(prompt, soulText, formatted, jobName + "_at_" + formatted);
 		connectorWS.broadCast(reply);
 
 		// One-shot tasks are done after a single execution; remove from DB
